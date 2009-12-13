@@ -1,0 +1,10 @@
+application: thewe-1
+version: 5
+runtime: python
+api_version: 1
+
+handlers:
+- url: /_wave/.*
+  script: thewe-1.py
+- url: /assets
+  static_dir: assets
