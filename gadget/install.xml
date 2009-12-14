@@ -1,0 +1,8 @@
+<extension location="Toolbar">
+  <info id="textbox"
+        text="Textbox"
+        description="Insert a textbox."
+        imageUrl="http://wave-api-dmo.appspot.com/public/simplemap/whereicon.png"/>
+      <insertGadget
+        url="http://wave.thewe.net/gadgets/textbox/textbox.xml"/>
+</extension>
