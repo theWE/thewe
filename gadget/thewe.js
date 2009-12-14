@@ -100,6 +100,7 @@ we.State = new Class({
 	    return result;
 	},
 
+	// @todo: rename to getValue
 	get: function(key) {
 	    var result = this[key];
 
@@ -109,6 +110,14 @@ we.State = new Class({
 	    }
 
 	    return result;
+	},
+
+	getObj: function(key) {
+	    if (this[key] == null) {
+		this[key] = new we.State(this.$cursorPath + key + '.');
+	    }
+
+	    return this[key];
 	},
 
         set: function(key, value) {
@@ -171,6 +180,10 @@ we.State = new Class({
 		}).map(function(key) {
 			return self[key];
 		    });
+	},
+
+	each: function(f) {
+	    this.asArray().each(f);
 	},
 
 	insertAtPosition: function(pos, val) {
@@ -264,19 +277,20 @@ we.$ = function(id) {
     return we.el.getElementById(id);
 }
 
-function applyMixinsToElement(mixins, el) {
-    var baseMixinCtxsByName = {};
+we.applyMixinsToElement = function(mixins, el) {
+    var baseMixinCtxByName = {};
 
     mixins.asArray().each(function(mixinState) {
 	    if (mixinState._code) {
 		we.mixinCtx = mixinState._context = {state: mixinState};
 		we.mixinState = mixinState;
 		we.el = el;	       
-		eval(we.mixin.state._code);
 
-		if (mixinState._name) {
-		    baseMixinCtxsByName[_name] = mixinCtx;
+		if (we.mixinState._name) {
+		    baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
 		}
+
+		eval(we.mixinState._code);
 	    }
 	});
 }
@@ -296,8 +310,6 @@ function debugState() {
 }
 
 function weStateUpdated() {
-    alert(1);
-
         state = we.computeState();
 
 	/* $fix - see what actually changed */
@@ -305,7 +317,7 @@ function weStateUpdated() {
                 we.mixins = state._mixins;
 		$('content').empty();
 		modeChanged.empty();
-		applyMixinsToElement(we.mixins, $('content'));
+		we.applyMixinsToElement(we.mixins, $('content'));
                 weModeChanged();
         }
 
