@@ -332,7 +332,6 @@ class Robot(object):
                               method=urlfetch.POST,
                               headers={'Content-Type': 'application/x-www-form-urlencoded'}).content
 
-
     first = ops.Operation(ops.ROBOT_NOTIFY_CAPABILITIES_HASH,
                           '0',
                           {'capabilitiesHash': self._capability_hash})
