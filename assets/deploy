@@ -1,0 +1,2 @@
+#!/bin/bash
+scp json-tree.html avital@jem.thewe.net:swank/assets

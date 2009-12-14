@@ -1,0 +1,131 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/11/trunk/src/com/google/wave/api/impl
+END
+OperationMessageBundle.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/OperationMessageBundle.java
+END
+Operation.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/Operation.java
+END
+TextViewImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/TextViewImpl.java
+END
+WaveletData.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/WaveletData.java
+END
+OperationType.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/OperationType.java
+END
+EventImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/EventImpl.java
+END
+EventDataSerializer.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/EventDataSerializer.java
+END
+RobotMessageBundleImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/RobotMessageBundleImpl.java
+END
+GadgetViewImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/11/trunk/src/com/google/wave/api/impl/GadgetViewImpl.java
+END
+BlipImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/BlipImpl.java
+END
+EventMessageBundleSerializer.java
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/EventMessageBundleSerializer.java
+END
+EventData.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/EventData.java
+END
+EventMessageBundle.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/11/trunk/src/com/google/wave/api/impl/EventMessageBundle.java
+END
+FormViewImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/FormViewImpl.java
+END
+BlipData.java
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/BlipData.java
+END
+OperationImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/OperationImpl.java
+END
+ElementSerializer.java
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/ElementSerializer.java
+END
+EventMessage.java
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/EventMessage.java
+END
+Tuple.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/Tuple.java
+END
+WaveletImpl.java
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/WaveletImpl.java
+END
+OperationSerializer.java
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/impl/OperationSerializer.java
+END

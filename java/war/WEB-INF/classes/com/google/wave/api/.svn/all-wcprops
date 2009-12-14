@@ -1,0 +1,137 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/11/trunk/src/com/google/wave/api
+END
+ParticipantProfile.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/ParticipantProfile.java
+END
+StyleType.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/StyleType.java
+END
+ProfileServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/ProfileServlet.java
+END
+Wavelet.java
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Wavelet.java
+END
+StyledText.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/StyledText.java
+END
+Annotation.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Annotation.java
+END
+FormElement.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/FormElement.java
+END
+AbstractRobotServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/AbstractRobotServlet.java
+END
+TextView.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/TextView.java
+END
+Event.java
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Event.java
+END
+Image.java
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Image.java
+END
+EventType.java
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/EventType.java
+END
+Context.java
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Context.java
+END
+RobotMessageBundle.java
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/RobotMessageBundle.java
+END
+GadgetView.java
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/GadgetView.java
+END
+Blip.java
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Blip.java
+END
+Element.java
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Element.java
+END
+RobotServlet.java
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/RobotServlet.java
+END
+Gadget.java
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Gadget.java
+END
+ElementType.java
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/ElementType.java
+END
+Range.java
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/Range.java
+END
+FormView.java
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/9/trunk/src/com/google/wave/api/FormView.java
+END

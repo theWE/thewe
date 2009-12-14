@@ -1,0 +1,67 @@
+/* Copyright (c) 2009 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.wave.api.impl;
+
+/**
+ * The Operation types supported by Robots.
+ * 
+ * @author scovitz@google.com (Seth Covitz)
+ * @author mprasetya@google.com (Marcel Prasetya)
+ */
+public enum OperationType {
+  WAVELET_APPEND_BLIP("WAVELET_APPEND_BLIP"),
+  WAVELET_ADD_PARTICIPANT("WAVELET_ADD_PARTICIPANT"),
+  WAVELET_REMOVE_PARTICIPANT("WAVELET_REMOVE_PARTICIPANT"),
+  WAVELET_CREATE("WAVELET_CREATE"),
+  WAVELET_DATADOC_APPEND("WAVELET_DATADOC_APPEND"),
+  WAVELET_DATADOC_SET("WAVELET_DATADOC_SET"),
+  WAVELET_REMOVE_SELF("WAVELET_REMOVE_SELF"),
+  WAVELET_SET_TITLE("WAVELET_SET_TITLE"),
+  BLIP_CREATE_CHILD("BLIP_CREATE_CHILD"),
+  BLIP_DELETE("BLIP_DELETE"),
+  BLIP_SET_AUTHOR("BLIP_SET_AUTHOR"),
+  BLIP_SET_CREATION_TIME("BLIP_SET_CREATION_TIME"),
+  DOCUMENT_ANNOTATION_DELETE("DOCUMENT_ANNOTATION_DELETE"),
+  DOCUMENT_ANNOTATION_SET("DOCUMENT_ANNOTATION_SET"),
+  DOCUMENT_ANNOTATION_SET_NORANGE("DOCUMENT_ANNOTATION_SET_NORANGE"),
+  DOCUMENT_APPEND("DOCUMENT_APPEND"),
+  DOCUMENT_APPEND_MARKUP("DOCUMENT_APPEND_MARKUP"),
+  DOCUMENT_APPEND_STYLED_TEXT("DOCUMENT_APPEND_STYLED_TEXT"),
+  DOCUMENT_INSERT("DOCUMENT_INSERT"),
+  DOCUMENT_DELETE("DOCUMENT_DELETE"),
+  DOCUMENT_REPLACE("DOCUMENT_REPLACE"),
+  DOCUMENT_ELEMENT_APPEND("DOCUMENT_ELEMENT_APPEND"),
+  DOCUMENT_ELEMENT_DELETE("DOCUMENT_ELEMENT_DELETE"),
+  DOCUMENT_ELEMENT_INSERT("DOCUMENT_ELEMENT_INSERT"),
+  DOCUMENT_ELEMENT_INSERT_AFTER("DOCUMENT_ELEMENT_INSERT_AFTER"),
+  DOCUMENT_ELEMENT_INSERT_BEFORE("DOCUMENT_ELEMENT_INSERT_BEFORE"),
+  DOCUMENT_ELEMENT_REPLACE("DOCUMENT_ELEMENT_REPLACE"),
+  DOCUMENT_INLINE_BLIP_APPEND("DOCUMENT_INLINE_BLIP_APPEND"),
+  DOCUMENT_INLINE_BLIP_DELETE("DOCUMENT_INLINE_BLIP_DELETE"),
+  DOCUMENT_INLINE_BLIP_INSERT("DOCUMENT_INLINE_BLIP_INSERT"),
+  DOCUMENT_INLINE_BLIP_INSERT_AFTER_ELEMENT("DOCUMENT_INLINE_BLIP_INSERT_AFTER_ELEMENT");
+  
+  private final String text;
+  
+  private OperationType(String text) {
+    this.text = text;
+  }
+  
+  @Override
+  public String toString() {
+    return text;
+  }
+}
