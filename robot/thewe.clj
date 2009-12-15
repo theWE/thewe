@@ -213,6 +213,8 @@ will not be present in the new structure."
       :else
       nil)))
 
+(defn-log read-only? [rep-loc] (:read-only rep-loc))
+
 
 (defn-log do-replication 
   "Receives rep-rules and incoming rep-ops and returns rep-ops to be acted upon"
@@ -224,7 +226,8 @@ will not be present in the new structure."
 	       :let [trans-func (transformation-function-if-match-rep-loc rep-op rep-loc)]
 	       :when trans-func]
 	   (apply concat 
-		  (for [other-rep-loc (disj rep-class rep-loc)] 
+		  (for [other-rep-loc (disj rep-class rep-loc)
+			:when (not (read-only? other-rep-loc))]
 		    (update-rep-loc-ops (trans-func other-rep-loc) (:content rep-op)))))))
 
 
