@@ -94,6 +94,17 @@
 ; ======= Utilities =======
 ; =========================
 
+(defmacro wave-attempt [expr]
+  `(try ~expr 
+	(catch Throwable t#
+	  (ctrace-exception t#)
+	  [])))
+
+(defn log-info [title x]
+  (append-spit "/home/avital/swank/ctrace/operations"
+	       (str (current-time) \newline title \newline (pprn-str x) \newline))
+  x)
+
 ; (dig {:a {:b 3}} :a :b) returns 3
 (defn dig [map & rest]
   (get-in map rest))
