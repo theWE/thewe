@@ -100,6 +100,9 @@
 	  (ctrace-exception t#)
 	  [])))
 
+(defn current-time []
+  (. (new Date) (toString)))
+
 (defn log-info [title x]
   (append-spit "/home/avital/swank/ctrace/operations"
 	       (str (current-time) \newline title \newline (pprn-str x) \newline))

@@ -119,20 +119,12 @@
 	     expr)))
      ~expr))
 
-(defn clean-unit-tests! []
-  (reset! *unit-tests* {}))
-
-(def *record-unit-tests* false)
-
 (defmacro ctraceify [name args rest]
   `(if *enable-ctrace*
      (let [result# 
 	   (binding [*log-path* (log-conj *log-path* (str "Function call: " '(~name ~@args)))]
 	     ~@(for [arg args] `(ctrace ~arg))
              (log* (do ~@(for [expr# rest] `(ctrace ~expr#)))))]
-       (if (and *record-unit-tests* (empty? *ctrace-path*))
-	 (let [expr# `(~'~name ~@~args)]
-	   (swap! *unit-tests* assoc expr# result#)))
        result#)
      (do ~@rest)))
 
@@ -146,8 +138,7 @@
 	args (first other)]
     `(defn ~name ~args (ctraceify ~name ~args ~(rest other)))))
 
-(defn current-time []
-  (. (new Date) (toString)))
+
 
 
 
