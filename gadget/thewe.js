@@ -178,13 +178,19 @@ we.State = new Class({
 	    return self.getKeys().sort(function(a, b) {
 		    return parseInt(self[a].position) > parseInt(self[b].position) ? 1 : -1;
 		}).map(function(key) {
-			return self[key];
+			var result = self[key];
+                           result._id = key;
+                           return result;
 		    });
 	},
 
 	each: function(f) {
 	    this.asArray().each(f);
 	},
+
+                         remove: function(el) {
+                             this.unset(el._id);
+                         },
 
 	insertAtPosition: function(pos, val) {
 	    var itemId = '' + $random(0, 100000000);
@@ -282,7 +288,7 @@ we.applyMixinsToElement = function(mixins, el) {
 
     mixins.asArray().each(function(mixinState) {
 	    if (mixinState._code) {
-		we.mixinCtx = mixinState._context = {state: mixinState};
+		we.mixinCtx = mixinState._context = {state: mixinState, el: el};
 		we.mixinState = mixinState;
 		we.el = el;	       
 
