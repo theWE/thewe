@@ -149,10 +149,7 @@
 (defn current-time []
   (. (new Date) (toString)))
 
-(defn ctrace-exception [t]
-  (append-spit "/home/avital/swank/ctrace/exceptions"
-	       (str (current-time) \newline 
-		    t \newline \newline)))
+
 
 
 ; tests
