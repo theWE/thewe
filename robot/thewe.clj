@@ -104,7 +104,7 @@
   (. (new Date) (toString)))
 
 (defn log-info [title x]
-  (append-spit "/home/avital/swank/ctrace/operations"
+  (append-spit "/home/avital/swank/log/operations"
 	       (str (current-time) \newline title \newline (pprn-str x) \newline))
   x)
 
