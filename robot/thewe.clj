@@ -425,7 +425,7 @@ will not be present in the new structure."
 		 ~'rep-loc {:type "blip"  :wave-id (~'blip-data "waveId") :wavelet-id (~'blip-data "waveletId") :blip-id (~'blip-data "blipId")}
 		 ~'first-gadget-map (first (dig ~'blip-data "elements"))
 		 ~'gadget-state (if ~'first-gadget-map (dig (val ~'first-gadget-map) "properties") {})]] 
-       (binding [~'*ctx* (we/log {:rep-loc ~'rep-loc :content ~'content :annotations ~'blip-annotations :gadget-state ~'gadget-state})] ~for-args))))
+       (binding [~'*ctx* (ctrace {:rep-loc ~'rep-loc :content ~'content :annotations ~'blip-annotations :gadget-state ~'gadget-state})] ~for-args))))
 
 
 
@@ -632,7 +632,7 @@ will not be present in the new structure."
 (defn answer-wave [events-map]
   (json-str
    (log-info "Operations" 
-	     (log (wave-attempt
+	     (ctrace (wave-attempt
 		   ((ns-resolve 'we
 				(read-string
 				 ((read-json (events-map "proxyingFor")) "action"))) 
