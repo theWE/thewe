@@ -202,6 +202,8 @@ will not be present in the new structure."
       :else
       nil)))
 
+(defn-log read-only? [rep-loc] (:read-only rep-loc))
+
 
 (defn-log do-replication 
   "Receives rep-rules and incoming rep-ops and returns rep-ops to be acted upon"

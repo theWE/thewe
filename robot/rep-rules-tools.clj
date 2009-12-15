@@ -31,6 +31,7 @@
   (swap! *rep-rules* replace-element-in-partition rep-loc new-rep-loc))
 
 (def *bkup-rep-rules* @*rep-rules*)
-(def @*rep-rules* *bkup-rep-rules*)
+(reset! *rep-rules* *bkup-rep-rules*)
 
-(filter-rep-locs-in-rep-rules!  #(= (:wave-id %) "googlewave.com!w+x3-iIo83A"))
+(filter-rep-locs-in-rep-rules!  #(not= (:wave-id %) "googlewave.com!w+x3-iIo83A"))
+(filter-rep-locs-in-rep-rules!  #(not= (:wave-id %) "googlewave.com!w+x3-iIo83E"))
