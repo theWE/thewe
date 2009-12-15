@@ -181,7 +181,7 @@ will not be present in the new structure."
     (= (select-keys r1 rep-loc-keys) (select-keys r2 rep-loc-keys))))
 
 (defmulti update-rep-loc-ops
-  (fn-log [rep-loc content] (:type rep-loc)))
+  (fn-ctrace [rep-loc content] (:type rep-loc)))
 
 (defn-ctrace has-annotation [rep-op name val]
   (some #(and (= (% "name") name) (= (% "value") val)) (:annotations rep-op)))
