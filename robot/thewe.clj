@@ -97,7 +97,7 @@
 (defmacro wave-attempt [expr]
   `(try ~expr 
 	(catch Throwable t#
-	  (ctrace-exception t#)
+	  (log-exception t#)
 	  [])))
 
 (defn log-info [title x]
@@ -147,13 +147,13 @@ will not be present in the new structure."
 ;
 ; rep-rules:  A set of sets (a partition) of rep-locs
 
-(defn-log add-to-class [partition class el] 
+(defn-ctrace add-to-class [partition class el] 
   (conj (disj partition class) (conj class el)))
 
-(defn-log containing-rep-class [rep-loc]
+(defn-ctrace containing-rep-class [rep-loc]
   (first (for [rep-class @*rep-rules* :when (some #{rep-loc} rep-class)] rep-class)))
 
-(defn-log replicate-replocs! [r1 r2]
+(defn-ctrace replicate-replocs! [r1 r2]
   (let [rc1 (containing-rep-class r1) rc2 (containing-rep-class r2)]
     (cond
       (and (not rc1) (not rc2))  ; when both are not in rep-classes
@@ -168,17 +168,17 @@ will not be present in the new structure."
       (and (and rc1 rc2) (not= rc1 rc2))
       (swap! *rep-rules* #(conj (disj % rc1 rc2) (union rc1 rc2))))))
 
-(defn-log equal-rep-loc [r1 r2]
+(defn-ctrace equal-rep-loc [r1 r2]
   (let [rep-loc-keys [:wave-id :wavelet-id :blip-id]] 
     (= (select-keys r1 rep-loc-keys) (select-keys r2 rep-loc-keys))))
 
 (defmulti update-rep-loc-ops
   (fn-log [rep-loc content] (:type rep-loc)))
 
-(defn-log has-annotation [rep-op name val]
+(defn-ctrace has-annotation [rep-op name val]
   (some #(and (= (% "name") name) (= (% "value") val)) (:annotations rep-op)))
 
-(defn-log transformation-function-if-match-rep-loc [rep-op rep-loc]
+(defn-ctrace transformation-function-if-match-rep-loc [rep-op rep-loc]
   (let [rep-op-key (dig rep-op :rep-loc :key)
 	rep-loc-key (:key rep-loc)]
     (cond 
@@ -213,10 +213,10 @@ will not be present in the new structure."
       :else
       nil)))
 
-(defn-log read-only? [rep-loc] (:read-only rep-loc))
+(defn-ctrace read-only? [rep-loc] (:read-only rep-loc))
 
 
-(defn-log do-replication 
+(defn-ctrace do-replication 
   "Receives rep-rules and incoming rep-ops and returns rep-ops to be acted upon"
   [rep-rules rep-ops]
   (apply concat 
@@ -247,7 +247,7 @@ will not be present in the new structure."
 
 
 
-(defn-log blip-data-to-rep-ops [blip-data]
+(defn-ctrace blip-data-to-rep-ops [blip-data]
   (let [basic-rep-loc {:wave-id (blip-data "waveId"), :wavelet-id (blip-data "waveletId"), :blip-id (blip-data "blipId")}]
     (if-let [gadget-map (first (dig blip-data "elements"))]
 					; there is a gadget here
@@ -278,28 +278,28 @@ will not be present in the new structure."
 (defn kill-nil [m]
   (into {} (for [[key val] m :when val] [key (if (map? val) (kill-nil val) val)])))
 
-(defn-log params [rep-loc] 
+(defn-ctrace params [rep-loc] 
   (kill-nil 
    {"waveId" (:wave-id rep-loc)
     "waveletId" (:wavelet-id rep-loc)
     "blipId" (:blip-id rep-loc)}))
 
-(defn-log op-skeleton [rep-loc] 
+(defn-ctrace op-skeleton [rep-loc] 
   {"params" (params rep-loc)
    "id" (str (rand))})
 
-(defn-log modify-how-json [modify-how values elements]
+(defn-ctrace modify-how-json [modify-how values elements]
   (kill-nil
    {"modifyHow" modify-how 
     "values" values
     "elements" elements}))
 
-(defn-log modify-query-json [restrictions max-res element-match]
+(defn-ctrace modify-query-json [restrictions max-res element-match]
   {"restrictions" restrictions
     "maxRes" max-res 
     "elementMatch" element-match})
 
-(defn-log document-modify-json 
+(defn-ctrace document-modify-json 
   [rep-loc range modify-query modify-how]
   (kill-nil 
    (assoc-in-x (op-skeleton rep-loc) 
@@ -308,69 +308,69 @@ will not be present in the new structure."
                ["params" "range"] range
                ["params" "modifyQuery"] modify-query)))
 
-(defn-log range-json [start end] 
+(defn-ctrace range-json [start end] 
   {"end" end, "start" start})
 
-(defn-log document-insert-ops [rep-loc cursor content]
+(defn-ctrace document-insert-ops [rep-loc cursor content]
   [(document-modify-json rep-loc 
                         (range-json cursor (+ cursor (count content))) 
                         nil
                         (modify-how-json "INSERT" [content] nil))])
 
-(defn-log document-append-ops [rep-loc content]
+(defn-ctrace document-append-ops [rep-loc content]
   [(document-modify-json rep-loc nil nil
                          (modify-how-json "INSERT_AFTER" [content] nil))])
 
-(defn-log document-delete-ops [rep-loc]
+(defn-ctrace document-delete-ops [rep-loc]
   [(document-modify-json rep-loc nil nil
                          (modify-how-json "DELETE" nil nil))])
 
-(defn-log document-delete-append-ops [rep-loc content]
+(defn-ctrace document-delete-append-ops [rep-loc content]
   ; if there is no blip id this must be a one-way replication so just ignor it
   (if (:blip-id rep-loc)
     (concat (document-delete-ops rep-loc) (document-append-ops rep-loc content))
     []))
 
-(defn-log add-annotation-ops [rep-loc name range value]
+(defn-ctrace add-annotation-ops [rep-loc name range value]
   [(document-modify-json rep-loc range nil
                          (assoc 
                              (modify-how-json
                               "ANNOTATE" [value] nil) :annotationKey name))])
 
-(defn-log delete-annotation-ops [rep-loc name range]
+(defn-ctrace delete-annotation-ops [rep-loc name range]
   [(document-modify-json rep-loc range nil
                          (assoc 
                              (modify-how-json
                               "CLEAR_ANNOTATION" nil nil) :annotationKey name))])
 
-(defn-log add-annotation-norange-ops [rep-loc name value]
+(defn-ctrace add-annotation-norange-ops [rep-loc name value]
   [(document-modify-json rep-loc nil nil
                          (assoc 
                              (modify-how-json
                               "ANNOTATE" [value] nil) :annotationKey name))])
 
 ; @TODO  - this is horrible, should talk about why this is here.
-(defn-log gadget-state-rep-loc [rep-loc]
+(defn-ctrace gadget-state-rep-loc [rep-loc]
   (into {} 
         (map #(vec `(~(.replace (.replace (str (key %)) "-" "") ":" "") ~(val %))) rep-loc)))
 
-(defn-log gadget-op-json [rep-loc gadget-state]
+(defn-ctrace gadget-op-json [rep-loc gadget-state]
   {"properties" (merge gadget-state (gadget-state-rep-loc rep-loc))
    "type" "GADGET"})
 
-(defn-log append-gadget-ops [rep-loc gadget-state]
+(defn-ctrace append-gadget-ops [rep-loc gadget-state]
   [(document-modify-json rep-loc nil nil
                         (modify-how-json "INSERT_AFTER" nil 
                                          [(gadget-op-json rep-loc gadget-state)]))])
 
 ; @TODO - should check if we should re-do the escaping workaround with the " "
-(defn-log gadget-submit-delta-ops [rep-loc state]
+(defn-ctrace gadget-submit-delta-ops [rep-loc state]
   [(document-modify-json rep-loc nil 
                         (modify-query-json {"url" (state "url")} 1 "GADGET")
                         (modify-how-json "UPDATE_ELEMENT" nil 
                                          [(gadget-op-json rep-loc (dissoc state "url"))]))])
 
-(defn-log blip-create-child-ops [rep-loc content new-id]
+(defn-ctrace blip-create-child-ops [rep-loc content new-id]
   [(assoc-in-x 
      (op-skeleton (assoc rep-loc :blip-id nil))
      ["method"] "wavelet.appendBlip"
@@ -380,19 +380,19 @@ will not be present in the new structure."
 
 
 (defmethod update-rep-loc-ops "gadget" [rep-loc content]
-  (log (gadget-submit-delta-ops rep-loc 
+  (ctrace (gadget-submit-delta-ops rep-loc 
 				{(:key rep-loc) content
 				 "url" "http://wave.thewe.net/gadgets/thewe-ggg/thewe-ggg.xml"})))
 
 (defmethod update-rep-loc-ops "blip" [rep-loc content]
-  (log (document-delete-append-ops rep-loc content)))
+  (ctrace (document-delete-append-ops rep-loc content)))
 
-(defn-log add-string-and-annotate-ops [rep-loc str annotate-until annotation-name]
+(defn-ctrace add-string-and-annotate-ops [rep-loc str annotate-until annotation-name]
   (concat
    (document-insert-ops rep-loc 0 str)
    (add-annotation-ops rep-loc annotation-name (range-json 0 annotate-until) "nothing")))
 
-(defn-log add-string-and-eval-ops [rep-loc str]
+(defn-ctrace add-string-and-eval-ops [rep-loc str]
   (add-string-and-annotate-ops rep-loc 0 str (count str) "we/eval"))
 
 
@@ -423,38 +423,38 @@ will not be present in the new structure."
 
 ;;; Functions that can be called with an we/eval
 
-(defn-log delete-annotation [annotation]
+(defn-ctrace delete-annotation [annotation]
   (delete-annotation-ops (:rep-loc *ctx*) 
                          (annotation "name")
                          (range-json (dig annotation "range" "start")
                                      (dig annotation "range" "end"))))
 
-(defn-log echo [s]
+(defn-ctrace echo [s]
   (document-insert-ops (:rep-loc *ctx*) (:cursor *ctx*) (str \newline s)))
 
-(defn-log echo-pp [s]
+(defn-ctrace echo-pp [s]
   (echo (pprn-str s)))
 
-(defn-log identify-this-blip []
+(defn-ctrace identify-this-blip []
   (echo-pp (:rep-loc *ctx*)))
 
-(defn-log create-child-blip [] 
+(defn-ctrace create-child-blip [] 
   (blip-create-child-ops (:rep-loc *ctx*) "" (str (rand))))
 
-(defn-log modify-ggg [state]
+(defn-ctrace modify-ggg [state]
   (gadget-submit-delta-ops (:rep-loc *ctx*) (assoc state "url" "http://wave.thewe.net/gadgets/thewe-ggg/thewe-ggg.xml")))
 
-(defn-log current-rep-class []
+(defn-ctrace current-rep-class []
   (containing-rep-class (*ctx* :rep-loc)))
 
-(defn-log gadget-rep-class [key]
+(defn-ctrace gadget-rep-class [key]
   (containing-rep-class (assoc (*ctx* :rep-loc)
 			   :type "gadget" :key key)))
 
 
 ;;; Clipboard stuff
 
-(defn-log remember-wave! []
+(defn-ctrace remember-wave! []
   (reset! *other-wave* *ctx*)
   (echo "Remembered"))
 
@@ -462,7 +462,7 @@ will not be present in the new structure."
   `(binding [*ctx* @*other-wave*]
      ~expr))
 
-(defn-log remember-gadget-key! [rep-key]
+(defn-ctrace remember-gadget-key! [rep-key]
   (reset! *clipboard* 
 	  {:source-key rep-key 
 	   :rep-loc (:rep-loc *ctx*) 
@@ -476,7 +476,7 @@ will not be present in the new structure."
 (defn submit-replication-delta [rep-key]
   (we/gadget-submit-delta-ops (:rep-loc we/*ctx*) (into {"url" "http://wave.thewe.net/gadgets/thewe-ggg/thewe-ggg.xml"} (for [[subkey val] (:subkeys @we/*last-clipboard*)] [(str rep-key subkey) val]))))
 
-(defn-log replicate-gadget-key! [rep-key]
+(defn-ctrace replicate-gadget-key! [rep-key]
   (doseq [:let [{subkeys :subkeys source-key :source-key source-rep-loc :rep-loc} @*clipboard*] [subkey _] subkeys] 
     (replicate-replocs!     
      (assoc source-rep-loc :type "gadget" :key (str source-key subkey))
@@ -486,13 +486,13 @@ will not be present in the new structure."
 
 ;;; Utilities for gadget-initiated replication
 
-(defn-log handle-to-key []
+(defn-ctrace handle-to-key []
   (if-let [to-key ((:gadget-state *ctx*) "to-key")]
    (when (not= to-key "*")
       (reset! *clipboard* {:rep-loc (:rep-loc *ctx*) :to-key to-key})
       (gadget-submit-delta-ops (:rep-loc *ctx*) {"to-key" "*" "url" ((:gadget-state *ctx*) "url")}))))
 
-(defn-log handle-from-key []
+(defn-ctrace handle-from-key []
   (if-let [from-key ((:gadget-state *ctx*) "from-key")]  
     (if (not= from-key "*")
       (when-let [{to-key :to-key source-rep-loc :rep-loc} @*clipboard*] ;hyper: to-key: f1._mixins [from-key: ggg._mixins key: ggg._mixins.2345345....]
@@ -502,7 +502,7 @@ will not be present in the new structure."
 
 
 
-(defn-log handle-rep-keys []
+(defn-ctrace handle-rep-keys []
   (if-let [rep-keys ((:gadget-state *ctx*) "blip-rep-keys")]
     (if (not= rep-keys "*")
       (apply concat 
@@ -535,12 +535,12 @@ will not be present in the new structure."
 					; change the rep-key value to * so we won't repeat this function over and over
 		  (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:gadget-state *ctx*) "url")}))))))))
 
-(defn-log handle-gadget-rep "TODO" []
+(defn-ctrace handle-gadget-rep "TODO" []
   (concat
    (handle-to-key)
    (handle-from-key)))
 
-(defn-log store-mixins 
+(defn-ctrace store-mixins 
   "This stores gadget keys called mixins as they contain code we might want to use by name later"
   []
   (if-let [gadget-state (:gadget-state *ctx*)]
@@ -556,7 +556,7 @@ will not be present in the new structure."
 		  :code (gadget-state code-key) 
 		  :code-key code-key}]))))
 
-(defn-log handle-mixin-rep-key
+(defn-ctrace handle-mixin-rep-key
   "This checks whether we got a key called 'mixin-rep-key' which will indicate we want to replicate to the current gadget a mixin we store in *mixin-db*"
   []
   (if-let [gadget-state (:gadget-state *ctx*)]
@@ -580,7 +580,7 @@ will not be present in the new structure."
     result
     []))
 
-(defn-log run-function-do-operations [events-map] ; this is the signature of a function that can be called by adding + to a robot's address
+(defn-ctrace run-function-do-operations [events-map] ; this is the signature of a function that can be called by adding + to a robot's address
   (sfirst ; this is the solution for now as there is probably no more than one evaluated expression in each event sent to us
    (iterate-events events-map "ANNOTATED_TEXT_CHANGED"     
 		   (apply concat 
@@ -596,14 +596,14 @@ will not be present in the new structure."
 				    (catch Throwable t 
 				      (log-exception t) (echo t))))))))))
 
-(defn-log allow-gadget-replication [events-map]
+(defn-ctrace allow-gadget-replication [events-map]
   (apply concat (iterate-events events-map "BLIP_SUBMITTED" (handle-gadget-rep))))
 
 (defn concat-apply [fns arg]
   (apply concat 
          (map #(% arg) fns)))
 
-(defn-log mother-shit [events-map]
+(defn-ctrace mother-shit [events-map]
   (concat 
    (first ; this is the solution for now as there is probably no more than one evaluated expression in each event sent to us     
     (iterate-events events-map "BLIP_SUBMITTED" 
@@ -623,11 +623,12 @@ will not be present in the new structure."
 
 (defn answer-wave [events-map]
   (json-str
-   (log-info "Operations" (log (wave-attempt
-				((ns-resolve 'we
-					     (read-string
-					      ((read-json (events-map "proxyingFor")) "action"))) 
-				 events-map))))))
+   (log-info "Operations" 
+	     (log (wave-attempt
+		   ((ns-resolve 'we
+				(read-string
+				 ((read-json (events-map "proxyingFor")) "action"))) 
+		    events-map))))))
 
 
 
