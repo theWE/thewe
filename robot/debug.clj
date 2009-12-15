@@ -33,19 +33,14 @@
       (do
         (swap! *call-log* assoc-in log-path (str "[Exception] " result))
         (throw result))
-      (swap! *call-log* assoc-in log-path (ppr-str result)))
+      (swap! *call-log* assoc-in log-path result))
     result))
 
 (defmacro log* [result]
   `(log** (attempt ~result)))
 
-; @todo: remove this stupid string / thing
-(defn log-conj-clean [pre new]
-  (conj pre (str (swap! *log-counter* inc) "/" new)))
-
 (defn log-conj [pre new]
-  (log-conj-clean pre (binding [*print-level* 3] 
-                        (pr-str new))))
+  (conj pre [(swap! *log-counter* inc) new]))
 
 (def *enable-logging* false)
 (def *log-monads* false)
@@ -53,6 +48,26 @@
 (defn third [l]
   (nth l 2))
 
+(defn start-logging []
+  (def *enable-logging* true)
+  (swap! *call-log* empty))
+
+(defn str-copies [unit num]
+  (apply str (for [_ (range num)] unit)))
+
+(defn end-logging-and-print-org-mode
+  ([] 
+     (def *enable-logging* false)
+     (end-logging-and-print-org-mode 0 nil @*call-log*))
+  ([depth what m]
+     (when what
+       (println (str-copies "*" depth) what)
+       (print (str (str-copies " " depth) " "))
+       (pprint (:result m)))
+     (doseq [[[_ k] v] (sort-by #(first (key %)) (dissoc m :result))]
+       (end-logging-and-print-org-mode (inc depth) k v))))
+
+     
 (comment
 (defn monad-log-form [comp]
   (apply concat (for [name val] (partition 2 comp)
@@ -71,6 +86,10 @@
 	  (#{'do 'if 'and 'or} func)
 	  standard-log-form
 
+          (#{'cond} func)
+          `(~func ~@(for [clause (rest expr)] 
+                      (if (= clause :else) clause `(log ~clause))))
+          
           (#{'if-let} func)
           `(~func [~(first (second expr)) (log ~(second (second expr)))] ~@(log-all (rest (rest expr))))            
           
@@ -115,7 +134,7 @@
 (defmacro logify [name args rest]
   `(if *enable-logging*
      (let [result# 
-	   (binding [*log-path* (log-conj-clean *log-path* (str "Function call: " '(~name ~@args)))]
+	   (binding [*log-path* (log-conj *log-path* (str "Function call: " '(~name ~@args)))]
 	     ~@(for [arg args] `(log ~arg))
              (log* (do ~@(for [expr# rest] `(log ~expr#)))))]
        (if (and *record-unit-tests* (empty? *log-path*))
@@ -167,10 +186,8 @@
   x)
 
 
-
 ; tests
-  
-  
+    
   
 (comment
 
