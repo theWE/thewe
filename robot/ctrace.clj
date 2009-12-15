@@ -51,14 +51,14 @@
 (defn end-complete-tracing-and-print-org-mode
   ([] 
      (def *enable-logging* false)
-     (end-logging-and-print-org-mode 0 nil @*call-log*))
+     (end-complete-tracing-and-print-org-mode 0 nil @*call-log*))
   ([depth what m]
      (when what
        (println (str-copies "*" depth) what)
        (print (str (str-copies " " depth) " "))
        (pprint (:result m)))
      (doseq [[[_ k] v] (sort-by #(first (key %)) (dissoc m :result))]
-       (end-logging-and-print-org-mode (inc depth) k v))))
+       (end-complete-tracing-and-print-org-mode (inc depth) k v))))
 
      
 (comment
