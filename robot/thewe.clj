@@ -105,6 +105,11 @@
 	       (str (current-time) \newline title \newline (pprn-str x) \newline))
   x)
 
+(defn log-exception [t]
+  (append-spit "/home/avital/swank/log/exceptions"
+	       (str (current-time) \newline 
+		    t \newline \newline)))
+
 ; (dig {:a {:b 3}} :a :b) returns 3
 (defn dig [map & rest]
   (get-in map rest))
