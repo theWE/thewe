@@ -50,7 +50,7 @@
 
 (defn end-complete-tracing-and-print-org-mode
   ([] 
-     (def *enable-logging* false)
+     (def *enable-ctrace* false)
      (end-complete-tracing-and-print-org-mode 0 nil @*call-log*))
   ([depth what m]
      (when what
