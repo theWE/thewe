@@ -61,7 +61,8 @@ we.startTransaction = function() {
 };
 
 we.setMixinName = function(name) {
-    we.mixinState.set('_name', name);
+    if (we.mixinState != name)
+        we.mixinState.set('_name', name);
 };
 
 
