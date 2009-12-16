@@ -161,7 +161,7 @@ will not be present in the new structure."
 (defn-ctrace containing-rep-class [rep-loc]
   (first (for [rep-class @*rep-rules* :when (some #{rep-loc} rep-class)] rep-class)))
 
-(defn-ctrace replicate-replocs! [r1 r2]
+(defn replicate-replocs! [r1 r2]
   (let [rc1 (containing-rep-class r1) rc2 (containing-rep-class r2)]
     (cond
       (and (not rc1) (not rc2))  ; when both are not in rep-classes
@@ -176,7 +176,7 @@ will not be present in the new structure."
       (and (and rc1 rc2) (not= rc1 rc2))
       (swap! *rep-rules* #(conj (disj % rc1 rc2) (union rc1 rc2))))))
 
-(defn-ctrace equal-rep-loc [r1 r2]
+(defn equal-rep-loc [r1 r2]
   (let [rep-loc-keys [:wave-id :wavelet-id :blip-id]] 
     (= (select-keys r1 rep-loc-keys) (select-keys r2 rep-loc-keys))))
 
@@ -186,7 +186,7 @@ will not be present in the new structure."
 (defn-ctrace has-annotation [rep-op name val]
   (some #(and (= (% "name") name) (= (% "value") val)) (:annotations rep-op)))
 
-(defn-ctrace transformation-function-if-match-rep-loc [rep-op rep-loc]
+(defn transformation-function-if-match-rep-loc [rep-op rep-loc]
   (let [rep-op-key (dig rep-op :rep-loc :key)
 	rep-loc-key (:key rep-loc)]
     (cond 
@@ -224,7 +224,7 @@ will not be present in the new structure."
 (defn-ctrace read-only? [rep-loc] (:read-only rep-loc))
 
 
-(defn-ctrace do-replication 
+(defn do-replication 
   "Receives rep-rules and incoming rep-ops and returns rep-ops to be acted upon"
   [rep-rules rep-ops]
   (apply concat 
@@ -265,7 +265,7 @@ will not be present in the new structure."
 
 					; there is no gadget
 
-      (if-let [dnr (first (filter #(= ( % "name") "we/DNR") (:annotations *ctx*)))]
+      (if-let [dnr (first (filter #(= (% "name") "we/DNR") (:annotations *ctx*)))]
 	[{:rep-loc (assoc basic-rep-loc :type "blip") :content 
 	  (.replace (blip-data "content") (subs (blip-data "content") (dig dnr "range" "start") (dig dnr "range" "end")) "") 
 	  :annotations (:annotations *ctx*)}]

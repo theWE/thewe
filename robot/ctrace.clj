@@ -1,9 +1,8 @@
+
 (ns we
   (:use clojure.contrib.pprint)
   (:use clojure.contrib.duck-streams)
   (:import java.util.Date))
-
-(def *call-log* (atom {}))
 
 (defn macro? [expr]
   (not= (macroexpand-1 expr) expr))
@@ -11,8 +10,8 @@
 (defmacro attempt [expr]
   `(try ~expr (catch Throwable t# t#)))
 
-(def *log-path* [])
-(def *log-counter* (atom 0))
+(def *ctrace-depth* 0)
+(def *ctrace-log* (atom []))
 
 (defn ppr-str [x]
   (with-out-str (pprint x)))
@@ -20,20 +19,25 @@
 (defn pprn-str [x]
   (str (ppr-str x) \newline))
 
+(count @*ctrace-log*)
+
+(defn ctrace-log-write [what]
+  (swap! *ctrace-log* conj [*ctrace-depth* false what]))
+
+(defn ctrace-log-write-1 [what]
+  (swap! *ctrace-log* conj [(inc *ctrace-depth*) false what]))
+
 (defn log** [result]
-  (let [log-path (conj *log-path* :result)]
-    (if (instance? Throwable result)
-      (do
-        (swap! *call-log* assoc-in log-path (str "[Exception] " result))
-        (throw result))
-      (swap! *call-log* assoc-in log-path result))
-    result))
+  (if (instance? Throwable result)
+    (do
+      (ctrace-log-write (str "[Exception] " (ppr-str result)))
+      (throw result))
+    (do (ctrace-log-write "`=> Result:")
+        (swap! *ctrace-log* conj [nil true result])))
+  result)
 
 (defmacro log* [result]
   `(log** (attempt ~result)))
-
-(defn log-conj [pre new]
-  (conj pre [(swap! *log-counter* inc) new]))
 
 (def *enable-ctrace* false)
 (def *ctrace-monads* false)
@@ -43,23 +47,14 @@
 
 (defn start-complete-tracing []
   (def *enable-ctrace* true)
-  (swap! *call-log* empty))
+  (reset! *ctrace-log* []))
 
-(defn str-copies [unit num]
-  (apply str (for [_ (range num)] unit)))
+(def *stars* "**************************************************************************************************")
 
-(defn end-complete-tracing-and-print-org-mode
-  ([] 
-     (def *enable-ctrace* false)
-     (end-complete-tracing-and-print-org-mode 0 nil @*call-log*))
-  ([depth what m]
-     (when what
-       (println (str-copies "*" depth) what)
-       (print (str (str-copies " " depth) " "))
-       (pprint (:result m)))
-     (doseq [[[_ k] v] (sort-by #(first (key %)) (dissoc m :result))]
-       (end-complete-tracing-and-print-org-mode (inc depth) k v))))
-
+(defn end-complete-tracing-and-print-org-mode [] 
+  (def *enable-ctrace* false)
+  (doseq [[depth ppr? val] @*ctrace-log*] 
+    (print (str (if depth (str (.substring *stars* 0 depth) " ") "") (if ppr? (ppr-str val) (str val \newline))))))
      
 (comment
 (defn monad-log-form [comp]
@@ -101,31 +96,33 @@
 
 (defmacro ctrace [expr]
   `(if *enable-ctrace*
-     (binding [*log-path* (log-conj *log-path* '~expr)]
-	~(if (seq? expr)
-	   (let [func (first expr)]
-	     (cond
+     (do
+       (ctrace-log-write-1 '~expr)
+       (binding [*ctrace-depth* (inc *ctrace-depth*)]
+         ~(if (seq? expr)
+            (let [func (first expr)]
+              (cond
 	       (#{'iterate-events} func)
 	       `(ctrace ~(macroexpand-1 expr))
 	    
 	       :else
 	       `(log* ~(internal-ctrace-form expr))))
 	
-	   (cond
+            (cond
 	     (symbol? expr)
 	     `(log* ~expr)
 	  
 	     :else 
-	     expr)))
+	     expr))))
      ~expr))
 
 (defmacro ctraceify [name args rest]
   `(if *enable-ctrace*
-     (let [result# 
-	   (binding [*log-path* (log-conj *log-path* (str "Function call: " '(~name ~@args)))]
-	     ~@(for [arg args] `(ctrace ~arg))
-             (log* (do ~@(for [expr# rest] `(ctrace ~expr#)))))]
-       result#)
+     (do
+       (ctrace-log-write-1 (str "Function call: " '(~name ~@args)))
+       (binding [*ctrace-depth* (inc *ctrace-depth*)]
+         ~@(for [arg args] `(ctrace ~arg))
+         (log* (do ~@(for [expr# rest] `(ctrace ~expr#))))))
      (do ~@rest)))
 
 (defmacro fn-ctrace [args & rest]
