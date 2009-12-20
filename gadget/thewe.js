@@ -187,7 +187,7 @@ we.State = new Class({
 	    var self = this;
 
 	    return self.getKeys().sort(function(a, b) {
-		    return parseInt(self[a].position) > parseInt(self[b].position) ? 1 : -1;
+		    return parseInt(self[a]._position) > parseInt(self[b]._position) ? 1 : -1;
 		}).map(function(key) {
 			var result = self[key];
                            result._id = key;
