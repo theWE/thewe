@@ -354,7 +354,7 @@ function main() {
 	                        var key = String.fromCharCode(event.event.charCode);
 
 	                        if (key == 's') {
-				    alert(js_beautify(JSON.stringify(we.state.getClean()), {indent_size: 4, indent_char: ' ', preserve_newlines: false}));
+				    console.log(js_beautify(JSON.stringify(we.state.getClean()), {indent_size: 4, indent_char: ' ', preserve_newlines: false}));
 	                        }
 
 	                        if (key == 'o') {

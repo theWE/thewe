@@ -34,6 +34,7 @@
   (remove-blip-id-from-rep-rules! "b+-O5RniaQA")
   (rep-rules-with-rep-locs #(= (:blip-id %) "b+-DiUQjnYA"))
   
-  (rep-rules-with-rep-locs #(= (:wave-id %) "googlewave.com!w+sAW9qZZuB"))
+  (rep-rules-with-rep-locs #(= (:wave-id %) "googlewave.com!w+F3D8YKRbA"))
 
-  (filter-rep-locs-in-rep-rules! #(= (:wave-id %) "googlewave.com!w+sAW9qZZuB")))
+  (reset! *rep-rules* *rep-rules-save*)
+  (filter-rep-locs-in-rep-rules! #(= (:wave-id %) "googlewave.com!w+F3D8YKRbA")))
