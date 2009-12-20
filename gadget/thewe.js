@@ -51,6 +51,9 @@ we.view = {};
 
 
 we.submitChanges = function() {
+    console.log('Delta submitted');
+    console.log(we.delta);
+
         wave.getState().submitDelta(we.delta);
         we.delta = {};
 	we.inTransaction = false;
@@ -353,7 +356,7 @@ function main() {
 	                                        prompt("Value"));
 	                        }
 
-                            if (key == 'c') {                            
+                            if (key == 'c') {                         
                                 wave.getState().submitValue('from-key', '_mixins');
                                 alert('Prototype chosen');
                             }
