@@ -357,13 +357,8 @@ will not be present in the new structure."
                              (modify-how-json
                               "ANNOTATE" [value] nil) :annotationKey name))])
 
-; @TODO  - this is horrible, should talk about why this is here.
-(defn-ctrace gadget-state-rep-loc [rep-loc]
-  (into {} 
-        (map #(vec `(~(.replace (.replace (str (key %)) "-" "") ":" "") ~(val %))) rep-loc)))
-
 (defn-ctrace gadget-op-json [rep-loc gadget-state]
-  {"properties" (merge gadget-state (gadget-state-rep-loc rep-loc))
+  {"properties" gadget-state
    "type" "GADGET"})
 
 (defn-ctrace append-gadget-ops [rep-loc gadget-state]

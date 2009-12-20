@@ -1,3 +1,10 @@
+if (typeof console == 'undefined') {
+    console = {
+        log: function() {
+            }
+        };
+}
+
 $extend(JSON, {stringify: JSON.encode, parse: JSON.decode});
  
 we = {};
@@ -51,6 +58,9 @@ we.view = {};
 
 
 we.submitChanges = function() {
+    console.log('Delta submitted');
+    console.log(we.delta);
+
         wave.getState().submitDelta(we.delta);
         we.delta = {};
 	we.inTransaction = false;
@@ -140,19 +150,19 @@ we.State = new Class({
 	    return this;
         },
 
-        unset: function(key) {
+        unset: function(key, recursive) {
                 var oldValue = this[key];
 
                 if ($type(oldValue) == 'object') {
                         oldValue.getKeys().each(function(subkey) {
-	                        oldValue.unset(subkey);
+	                        oldValue.unset(subkey, true);
                         });
                 }
                 else {
                         we.delta[this.$cursorPath + key] = null;
                     }
 
-                if (!we.inTransaction) {
+                if (!we.inTransaction && !recursive) {
                         we.submitChanges();
                 }
 
@@ -177,7 +187,7 @@ we.State = new Class({
 	    var self = this;
 
 	    return self.getKeys().sort(function(a, b) {
-		    return parseInt(self[a].position) > parseInt(self[b].position) ? 1 : -1;
+		    return parseInt(self[a]._position) > parseInt(self[b]._position) ? 1 : -1;
 		}).map(function(key) {
 			var result = self[key];
                            result._id = key;
@@ -344,7 +354,7 @@ function main() {
 	                        var key = String.fromCharCode(event.event.charCode);
 
 	                        if (key == 's') {
-				    alert(js_beautify(JSON.stringify(we.state.getClean()), {indent_size: 4, indent_char: ' ', preserve_newlines: false}));
+				    console.log(js_beautify(JSON.stringify(we.state.getClean()), {indent_size: 4, indent_char: ' ', preserve_newlines: false}));
 	                        }
 
 	                        if (key == 'o') {
@@ -352,6 +362,11 @@ function main() {
 	                                        prompt("Key"),
 	                                        prompt("Value"));
 	                        }
+
+                            if (key == 'c') {                         
+                                wave.getState().submitValue('from-key', '_mixins');
+                                alert('Prototype chosen');
+                            }
 
 				if (key == 'e') {
 				    alert(eval(prompt("eval")));
