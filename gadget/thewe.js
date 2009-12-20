@@ -353,6 +353,10 @@ function main() {
 	                                        prompt("Value"));
 	                        }
 
+                            if (key == 'c') {                            
+                                wave.getState().submitValue('from-key', '_mixins');
+                            }
+
 				if (key == 'e') {
 				    alert(eval(prompt("eval")));
 				}

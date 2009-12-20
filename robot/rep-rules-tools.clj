@@ -14,10 +14,6 @@
   (swap! *rep-rules* 
 	 filter-elements-from-partition pred))
 
-(filter-rep-locs-in-rep-rules! #(not= (:wave-id %)
-				      "googlewave.com!w+x3-iIo83E"))
-
-
 
 (defn rep-rules-with-rep-locs [pred]
   (into #{} 
@@ -30,8 +26,14 @@
 (defn replace-rep-loc-in-rep-rules! [rep-loc new-rep-loc]
   (swap! *rep-rules* replace-element-in-partition rep-loc new-rep-loc))
 
-(def *bkup-rep-rules* @*rep-rules*)
-(reset! *rep-rules* *bkup-rep-rules*)
+(defn remove-blip-id-from-rep-rules! [blip-id]
+  (filter-rep-locs-in-rep-rules! #(not= (:blip-id %) blip-id)))
 
-(filter-rep-locs-in-rep-rules!  #(not= (:wave-id %) "googlewave.com!w+x3-iIo83A"))
-(filter-rep-locs-in-rep-rules!  #(not= (:wave-id %) "googlewave.com!w+x3-iIo83E"))
+(comment
+  (map count @*rep-rules*)
+  (remove-blip-id-from-rep-rules! "b+-O5RniaQA")
+  (rep-rules-with-rep-locs #(= (:blip-id %) "b+-DiUQjnYA"))
+  
+  (rep-rules-with-rep-locs #(= (:wave-id %) "googlewave.com!w+sAW9qZZuB"))
+
+  (filter-rep-locs-in-rep-rules! #(= (:wave-id %) "googlewave.com!w+sAW9qZZuB")))
