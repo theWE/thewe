@@ -386,6 +386,19 @@ will not be present in the new structure."
      (assoc (params (assoc rep-loc :blip-id new-id))
        "content" content))])
 
+(defn-ctrace wave-create-ops [participants wave-id wavelet-id root-blip-id]
+  [{"params" 
+    {"waveletId" nil
+     "waveletData" 
+     {"waveletId" wavelet-id
+      "participants" participants
+      "rootBlipId" root-blip-id 
+      "waveId" wave-id} 
+     "waveId" nil
+     "message" "" 
+     "datadocWriteback" nil} 
+    "method" "wavelet.create"
+    "id" (str (rand))}])
 
 (defmethod update-rep-loc-ops "gadget" [rep-loc content]
   (ctrace (gadget-submit-delta-ops rep-loc 
@@ -459,6 +472,13 @@ will not be present in the new structure."
   (containing-rep-class (assoc (*ctx* :rep-loc)
 			   :type "gadget" :key key)))
 
+(defn-ctrace wave-create [] 
+  (wave-create-ops 
+   ["ayalgelles@googlewave.com"
+    "avitaloliver@googlewave.com"]
+   "new-wave"
+   "googlewave.com!conv+root"
+   "new-blip"))
 
 ;;; Clipboard stuff
 
@@ -621,7 +641,10 @@ will not be present in the new structure."
 			 (handle-rep-keys) 
 			 (do-replication @*rep-rules* 
 					 (blip-data-to-rep-ops blip-data))
-			 (handle-mixin-rep-key)))))))
+			 (handle-mixin-rep-key)))))
+   (run-function-do-operations events-map)))
+
+
 
 
 
