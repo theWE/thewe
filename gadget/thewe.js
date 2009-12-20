@@ -1,3 +1,10 @@
+if (typeof console == 'undefined') {
+    console = {
+        log: function() {
+            }
+        };
+}
+
 $extend(JSON, {stringify: JSON.encode, parse: JSON.decode});
  
 we = {};
@@ -143,19 +150,19 @@ we.State = new Class({
 	    return this;
         },
 
-        unset: function(key) {
+        unset: function(key, recursive) {
                 var oldValue = this[key];
 
                 if ($type(oldValue) == 'object') {
                         oldValue.getKeys().each(function(subkey) {
-	                        oldValue.unset(subkey);
+	                        oldValue.unset(subkey, true);
                         });
                 }
                 else {
                         we.delta[this.$cursorPath + key] = null;
                     }
 
-                if (!we.inTransaction) {
+                if (!we.inTransaction && !recursive) {
                         we.submitChanges();
                 }
 
