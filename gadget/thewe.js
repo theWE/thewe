@@ -355,6 +355,7 @@ function main() {
 
                             if (key == 'c') {                            
                                 wave.getState().submitValue('from-key', '_mixins');
+                                alert('Prototype chosen');
                             }
 
 				if (key == 'e') {
