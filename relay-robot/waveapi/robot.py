@@ -330,6 +330,7 @@ class Robot(object):
     response = urlfetch.fetch(url=('http://jem.thewe.net/%s/wave' % port),
                               payload=urllib.urlencode({'events': json}),
                               method=urlfetch.POST,
+                              deadline=10,
                               headers={'Content-Type': 'application/x-www-form-urlencoded'}).content
 
     logging.info(response)

@@ -543,6 +543,15 @@ will not be present in the new structure."
    (handle-to-key)
    (handle-from-key)))
 
+(defn replace-at-end
+  "Replaces a substring from the end of a string with a different substring. Assumes that the string
+indeed ends with that substring"
+  [str- substr-from substr-to]
+  (str 
+   (.substring str- 0 
+               (- (count str-) (count substr-from))) 
+   substr-to))
+
 (defn-ctrace store-mixins 
   "This stores gadget keys called mixins as they contain code we might want to use by name later"
   []
@@ -553,7 +562,7 @@ will not be present in the new structure."
 		:when (and 
 		       (.startsWith key "_mixins.")
 		       (.endsWith key "._name"))
-		:let [code-key (str-join "." (assoc (vec (.split key "\\.")) 2 "_code"))]]
+		:let [code-key (replace-at-end key "_name" "_code")]]
 	    [val {:rep-loc (assoc (:rep-loc *ctx*) :type "gadget" :key code-key) 			      
 		  :name-key key 
 		  :code (gadget-state code-key) 
