@@ -1,12 +1,12 @@
 if (typeof console == 'undefined') {
-    console = {
-        log: function() {
-            }
+        console = {
+                log: function() {
+                }
         };
 }
 
 $extend(JSON, {stringify: JSON.encode, parse: JSON.decode});
- 
+
 we = {};
 
 $not = function(f) {
@@ -44,22 +44,22 @@ Element.implement({
                 return this.getElement('[weid=' + weid + ']');
         },
 
-	    hide: function() {
-	    this.setStyle('display', 'none');
+	hide: function() {
+	        this.setStyle('display', 'none');
 	},
 
-	    show: function() {
-	    this.setStyle('display', '');
+	show: function() {
+	        this.setStyle('display', '');
 	}
-    });
+});
 
 we.delta = {};
 we.view = {};
 
 
 we.submitChanges = function() {
-    console.log('Delta submitted');
-    console.log(we.delta);
+        console.log('Delta submitted');
+        console.log(we.delta);
 
         wave.getState().submitDelta(we.delta);
         we.delta = {};
@@ -67,87 +67,87 @@ we.submitChanges = function() {
 };
 
 we.startTransaction = function() {
-    we.inTransaction = true;
+        we.inTransaction = true;
 };
 
 we.setMixinName = function(name) {
-    if (we.mixinState._name != name)
-        we.mixinState.set('_name', name);
+        if (we.mixinState._name != name)
+                we.mixinState.set('_name', name);
 };
 
 
 var FuncArray = function() {
-    var result = [];
+        var result = [];
 
-    result.run = function() {
-	var args = arguments;
-	this.each(function(item) {
-		item.run(args);
-	    });
-    };
+        result.run = function() {
+	        var args = arguments;
+	        this.each(function(item) {
+		        item.run(args);
+	        });
+        };
 
-    return result;
+        return result;
 };
 
 
 we.State = new Class({
         initialize: function(cursorPath) {
-	    this.$cursorPath = cursorPath;
+	        this.$cursorPath = cursorPath;
         },
 
 	getClean: function() {
-	    var result = {};
-	    var self = this;
+	        var result = {};
+	        var self = this;
 
-	    self.getKeys().each(function(key) {
-		    var val = self[key];
+	        self.getKeys().each(function(key) {
+		        var val = self[key];
 
-		    if ($type(val) == 'object')
-			val = val.getClean();
- 
-		    result[key] = val;
+		        if ($type(val) == 'object')
+			        val = val.getClean();
+                        
+		        result[key] = val;
 		});
 
-	    return result;
+	        return result;
 	},
 
 	// @todo: rename to getValue
 	get: function(key) {
-	    var result = this[key];
+	        var result = this[key];
 
-	    if (result == null) {
-		we.state.set('blip-rep-keys', this.$cursorPath + key, true);
-		this.set(key, '');
-	    }
+	        if (result == null) {
+		        we.state.set('blip-rep-keys', this.$cursorPath + key, true);
+		        this.set(key, '');
+	        }
 
-	    return result;
+	        return result;
 	},
 
 	getObj: function(key) {
-	    if (this[key] == null) {
-		this[key] = new we.State(this.$cursorPath + key + '.');
-	    }
+	        if (this[key] == null) {
+		        this[key] = new we.State(this.$cursorPath + key + '.');
+	        }
 
-	    return this[key];
+	        return this[key];
 	},
 
         set: function(key, value) {
-	    this[key] = value;
+	        this[key] = value;
 
-	    if (!(this.$cursorPath == null)) {
-                var cursorPath = this.$cursorPath;
+	        if (!(this.$cursorPath == null)) {
+                        var cursorPath = this.$cursorPath;
 
-		if ($type(value) == 'object')
-		    we.flattenState(value, cursorPath + (key ? (key + '.') : ''), we.delta);
-                else
-		    we.delta[cursorPath + key] = value;
-		
-                if (!we.inTransaction) {
-		    we.submitChanges();
-                }
-	    }
+		        if ($type(value) == 'object')
+		                we.flattenState(value, cursorPath + (key ? (key + '.') : ''), we.delta);
+                        else
+		                we.delta[cursorPath + key] = value;
+		        
+                        if (!we.inTransaction) {
+		                we.submitChanges();
+                        }
+	        }
 
-	    return this;
+	        return this;
         },
 
         unset: function(key, recursive) {
@@ -160,7 +160,7 @@ we.State = new Class({
                 }
                 else {
                         we.delta[this.$cursorPath + key] = null;
-                    }
+                }
 
                 if (!we.inTransaction && !recursive) {
                         we.submitChanges();
@@ -170,13 +170,13 @@ we.State = new Class({
         },
 
 	getKeys: function() {
-	    var result = [];
+	        var result = [];
 
-	    for (var x in this) 
-		if (x != 'caller' && x != '_current' && x != '_context' && !(x.beginsWith('$')) && !(this[x] instanceof Function)) /* $fix? */
-		    result.push(x);
+	        for (var x in this) 
+		        if (x != 'caller' && x != '_current' && x != '_context' && !(x.beginsWith('$')) && !(this[x] instanceof Function)) /* $fix? */
+		                result.push(x);
 
-	    return result;
+	        return result;
 	},
 
 
@@ -184,51 +184,51 @@ we.State = new Class({
 	// Elastic List Functions //
 	////////////////////////////
 	asArray: function() {
-	    var self = this;
+	        var self = this;
 
-	    return self.getKeys().sort(function(a, b) {
-		    return parseInt(self[a]._position) > parseInt(self[b]._position) ? 1 : -1;
+                return self.getKeys().filter($not($begins('_'))).sort(function(a, b) {
+		        return parseInt(self[a]._position) > parseInt(self[b]._position) ? 1 : -1;
 		}).map(function(key) {
 			var result = self[key];
-                           result._id = key;
-                           return result;
-		    });
+                        result._id = key;
+                        return result;
+		});
 	},
 
 	each: function(f) {
-	    this.asArray().each(f);
+	        this.asArray().each(f);
 	},
 
-                         remove: function(el) {
-                             this.unset(el._id);
-                         },
+        remove: function(el) {
+                this.unset(el._id);
+        },
 
 	insertAtPosition: function(pos, val) {
-	    var itemId = '' + $random(0, 100000000);
-	    this.set(itemId, $merge({_position: '' + pos}, val));
-	    return this.$cursorPath + itemId;
+	        var itemId = '' + $random(0, 100000000);
+	        this.set(itemId, $merge({_position: '' + pos}, val));
+	        return this.$cursorPath + itemId;
 	},
 
 	append: function(val) {
-	    val = val || {};
-	    var self = this;
-	    var newPosition = between(self.getKeys().map(function(key) { return parseInt(self[key]._position) }).max(), 100000000000);
-	    return self.insertAtPosition(newPosition, val);
+	        val = val || {};
+	        var self = this;
+	        var newPosition = between(self.getKeys().map(function(key) { return parseInt(self[key]._position) }).max(), 100000000000);
+	        return self.insertAtPosition(newPosition, val);
 	}
 });
 
 between = function(x, y) {
-    if (x == -Infinity)
-	x = 0;
+        if (x == -Infinity)
+	        x = 0;
 
-    return $random(x, y);
+        return $random(x, y);
 };
 
 
 Hash.implement({
         filterKeys: function(filter) {
                 return this.filter(function(value, key) {
-                        return filter(key);
+                            return filter(key);
                 });
         }
 });
@@ -245,7 +245,7 @@ we.deepenState = function(state) {
                         cursorPath += token + '.';
 
                         if (!cursor[token]) {
-			    cursor[token] = new we.State(cursorPath);
+			        cursor[token] = new we.State(cursorPath);
                         }
 
                         cursor = cursor[token];
@@ -266,7 +266,7 @@ we.flattenState = function(state, cursorPath, into) {
                         we.flattenState(value, cursorPath + key + '.', into);
                 else
                         into[cursorPath + key] = value;
-            });
+        });
 
         return into;
 };
@@ -284,45 +284,45 @@ modeChanged = new FuncArray();
 
 function weModeChanged() {
         if (typeof modeChanged != 'undefined') {
-	    modeChanged.run(we.lastMode, wave.getMode());
-	    we.lastMode = wave.getMode();
-	    gadgets.window.adjustHeight();
+	        modeChanged.run(we.lastMode, wave.getMode());
+	        we.lastMode = wave.getMode();
+	        gadgets.window.adjustHeight();
         }
 }
 
 we.$ = function(id) {
-    return we.el.getElementById(id);
-}
+        return we.el.getElementById(id);
+};
 
 we.applyMixinsToElement = function(mixins, el) {
-    var baseMixinCtxByName = {};
+        var baseMixinCtxByName = {};
 
-    mixins.asArray().each(function(mixinState) {
-	    if (mixinState._code) {
-		we.mixinCtx = mixinState._context = {state: mixinState, el: el};
-		we.mixinState = mixinState;
-		we.el = el;	       
+        mixins.each(function(mixinState) {
+	        if (mixinState._code) {
+		        we.mixinCtx = mixinState._context = {state: mixinState, el: el};
+		        we.mixinState = mixinState;
+		        we.el = el;	       
 
-		if (we.mixinState._name) {
-		    baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
-		}
+		        if (we.mixinState._name) {
+		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
+		        }
 
-		eval(we.mixinState._code);
-	    }
+		        eval(we.mixinState._code);
+	        }
 	});
-}
+};
 
 msg = null;
 debug = false;
 
 function debugState() {
 	if (debug) {
-	    if (!msg)  {
-		msg = new gadgets.MiniMessage("http://wave.thewe.net/gadgets/thewe-ggg/thewe-ggg.xml", $('messageBox'));
-	    }
+	        if (!msg)  {
+		        msg = new gadgets.MiniMessage("http://wave.thewe.net/gadgets/thewe-ggg/thewe-ggg.xml", $('messageBox'));
+	        }
 
-	    // for debug
-	    msg.createDismissibleMessage(JSON.stringify(we.rawState));
+	        // for debug
+	        msg.createDismissibleMessage(JSON.stringify(we.rawState));
 	}
 }
 
@@ -354,7 +354,7 @@ function main() {
 	                        var key = String.fromCharCode(event.event.charCode);
 
 	                        if (key == 's') {
-				    console.log(js_beautify(JSON.stringify(we.state.getClean()), {indent_size: 4, indent_char: ' ', preserve_newlines: false}));
+				        console.log(js_beautify(JSON.stringify(we.state.getClean()), {indent_size: 4, indent_char: ' ', preserve_newlines: false}));
 	                        }
 
 	                        if (key == 'o') {
@@ -363,37 +363,37 @@ function main() {
 	                                        prompt("Value"));
 	                        }
 
-                            if (key == 'c') {                         
-                                wave.getState().submitValue('from-key', '_mixins');
-                                alert('Prototype chosen');
-                            }
+                                if (key == 'c') {                         
+                                        wave.getState().submitValue('from-key', '_mixins');
+                                        alert('Prototype chosen');
+                                }
 
 				if (key == 'e') {
-				    alert(eval(prompt("eval")));
+				        alert(eval(prompt("eval")));
 				}
 
 				if (key == 'b') {
-				    debug = !debug;
-				    debugState();
+				        debug = !debug;
+				        debugState();
 				}
 
 				if (key == 'm') {
-				    we.startTransaction();
+				        we.startTransaction();
 
-				    var mixinName = prompt("Use an existing mixin? If so, what is its name?");
+				        var mixinName = prompt("Use an existing mixin? If so, what is its name?");
 
-				    if (!we.state._mixins)
-					we.state.set('_mixins', new we.State('_mixins.')); // $fix - should this be {} instead of new we.State()?
+				        if (!we.state._mixins)
+					        we.state.set('_mixins', new we.State('_mixins.')); // $fix - should this be {} instead of new we.State()?
 
-				    var newMixinId = we.state._mixins.append() + '._code';
+				        var newMixinId = we.state._mixins.append() + '._code';
 
-				    if (mixinName)
-					we.state.set('mixin-rep-key', JSON.stringify({key: newMixinId, mixinName: mixinName}));
-				    else {
-					we.state.set('blip-rep-keys', newMixinId);
-				    }
+				        if (mixinName)
+					        we.state.set('mixin-rep-key', JSON.stringify({key: newMixinId, mixinName: mixinName}));
+				        else {
+					        we.state.set('blip-rep-keys', newMixinId);
+				        }
 
-				    we.submitChanges();
+				        we.submitChanges();
 				}
                         }
                 });
