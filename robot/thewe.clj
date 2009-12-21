@@ -381,6 +381,11 @@ will not be present in the new structure."
      (assoc (params (assoc rep-loc :blip-id new-id))
        "content" content))])
 
+(defn-ctrace blip-delete-ops [rep-loc]
+  [(assoc-in-x
+    (op-skeleton rep-loc)
+    ["method"] "blip.delete")])
+
 (defn-ctrace wave-create-ops [participants wave-id wavelet-id root-blip-id]
   [{"params" 
     {"waveletId" nil
@@ -453,6 +458,25 @@ will not be present in the new structure."
 
 (defn-ctrace identify-this-blip []
   (echo-pp (:rep-loc *ctx*)))
+
+(defn filter-elements-from-partition [partition pred]
+  (into #{} 
+	 (for [rep-class partition] 
+	   (into #{} 
+		 (for [el rep-class 
+		       :when (pred el)] 
+		   el)))))
+
+(defn filter-rep-locs-in-rep-rules! [pred]
+  (swap! *rep-rules* 
+	 filter-elements-from-partition pred))
+
+(defn-ctrace remove-blip-replication []
+  (filter-rep-locs-in-rep-rules! 
+   #(transformation-function-if-match-rep-loc %  (:rep-loc *ctx*)))
+  (concat
+   (blip-delete-ops (:rep-loc *ctx*))
+   (echo (count @*rep-rules*))))
 
 (defn-ctrace create-child-blip [] 
   (blip-create-child-ops (:rep-loc *ctx*) "" (str (rand))))
@@ -562,6 +586,12 @@ will not be present in the new structure."
   (concat
    (handle-to-key)
    (handle-from-key)))
+
+(defn-ctrace handle-removed-blips []
+  (if (:removed *ctx*) 
+    (filter-rep-locs-in-rep-rules! 
+     #(transformation-function-if-match-rep-loc % (:rep-loc *ctx*)))
+    []))
 
 (defn-ctrace store-mixins 
   "This stores gadget keys called mixins as they contain code we might want to use by name later"
