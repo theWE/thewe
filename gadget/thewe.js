@@ -415,7 +415,7 @@ function main() {
                                         if (mixinName) {
                                                 var filtered = we.state._mixins.asArray().filter(function(x) {return x._name == mixinName;});                               
 
-                                                if (!filtered.isEmpty()) {
+                                                if (filtered.isEmpty()) {
                                                         // Mixin with requested name doesn't exist - add it
                                                         we.fetchMixin(createNewMixinId(), mixinName);                      
                                                 }
