@@ -381,6 +381,11 @@ will not be present in the new structure."
      (assoc (params (assoc rep-loc :blip-id new-id))
        "content" content))])
 
+(defn-ctrace blip-delete-ops [rep-loc]
+  [(assoc-in-x
+    (op-skeleton rep-loc)
+    ["method"] "blip.delete")])
+
 (defn-ctrace wave-create-ops [participants wave-id wavelet-id root-blip-id]
   [{"params" 
     {"waveletId" nil
@@ -453,6 +458,25 @@ will not be present in the new structure."
 
 (defn-ctrace identify-this-blip []
   (echo-pp (:rep-loc *ctx*)))
+
+(defn filter-elements-from-partition [partition pred]
+  (into #{} 
+	 (for [rep-class partition] 
+	   (into #{} 
+		 (for [el rep-class 
+		       :when (pred el)] 
+		   el)))))
+
+(defn filter-rep-locs-in-rep-rules! [pred]
+  (swap! *rep-rules* 
+	 filter-elements-from-partition pred))
+
+(defn-ctrace remove-blip-replication []
+  (filter-rep-locs-in-rep-rules! 
+   #(transformation-function-if-match-rep-loc %  (:rep-loc *ctx*)))
+  (concat
+   (blip-delete-ops (:rep-loc *ctx*))
+   (echo (count @*rep-rules*))))
 
 (defn-ctrace create-child-blip [] 
   (blip-create-child-ops (:rep-loc *ctx*) "" (str (rand))))
@@ -563,6 +587,13 @@ will not be present in the new structure."
    (handle-to-key)
    (handle-from-key)))
 
+
+(defn-ctrace handle-removed-blips []
+  (if (:removed *ctx*) 
+    (filter-rep-locs-in-rep-rules! 
+     #(transformation-function-if-match-rep-loc % (:rep-loc *ctx*)))
+    []))
+
 (defn replace-at-end
   "Replaces a substring from the end of a string with a different substring. Assumes that the string
 indeed ends with that substring"
@@ -571,6 +602,7 @@ indeed ends with that substring"
    (.substring str- 0 
                (- (count str-) (count substr-from))) 
    substr-to))
+
 
 (defn-ctrace store-mixins 
   "This stores gadget keys called mixins as they contain code we might want to use by name later"
@@ -637,16 +669,17 @@ indeed ends with that substring"
 
 (defn-ctrace mother-shit [events-map]
   (concat 
-   (first ; this is the solution for now as there is probably no more than one evaluated expression in each event sent to us     
-    (iterate-events events-map "BLIP_SUBMITTED" 
-		    (do (store-mixins)
-			(concat 
-			 (handle-gadget-rep) 
-			 (handle-rep-keys) 
-			 (do-replication @*rep-rules* 
-					 (blip-data-to-rep-ops blip-data))
-			 (handle-mixin-rep-key)))))
-   (run-function-do-operations events-map)))
+   (apply concat 
+	  (iterate-events events-map "BLIP_SUBMITTED" 
+			  (do (store-mixins)
+			      (concat 
+			       (handle-gadget-rep) 
+			       (handle-rep-keys) 
+			       (do-replication @*rep-rules* 
+					       (blip-data-to-rep-ops blip-data))
+			       (handle-mixin-rep-key)))))
+   (run-function-do-operations events-map)
+   #_(apply concat (iterate-events events-map "WAVELET_BLIP_REMOVED" (handle-removed-blips)))))
 
 
 
