@@ -55,6 +55,8 @@ Array.implement({
 });
 
 Element.implement({
+        $$: Element.getElements,
+
         $we: function(weid) {
                 return this.getElement('[weid=' + weid + ']');
         },
