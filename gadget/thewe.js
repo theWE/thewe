@@ -5,6 +5,10 @@ if (typeof console == 'undefined') {
         };
 }
 
+shouldntHappen = function() {
+    console.log("Shouldn't happen!");
+};
+
 $extend(JSON, {stringify: JSON.encode, parse: JSON.decode});
 
 we = {};
@@ -36,6 +40,17 @@ Array.implement({
                 return this.filter(function(value, i) {
                         return i < this.length - 1;
                 }.bind(this));
+        },
+
+        isEmpty: function() {
+                return this.length == 0;
+        },
+
+        oneElement: function() {
+                if (this.length != 1)
+                        shouldntHappen();
+
+                return this[0];
         }
 });
 
@@ -347,6 +362,13 @@ function weStateUpdated() {
         gadgets.window.adjustHeight();
 }
 
+we.fetchMixin = function(mixinId, mixinName) {
+        we.state.set('mixin-rep-key', JSON.stringify({
+                key: mixinId, 
+                mixinName: mixinName
+        }));
+};
+
 function main() {
         if (wave && wave.isInWaveContainer()) {
                 window.addEvent('keypress', function(event) {
@@ -385,12 +407,25 @@ function main() {
 				        if (!we.state._mixins)
 					        we.state.set('_mixins', new we.State('_mixins.')); // $fix - should this be {} instead of new we.State()?
 
-				        var newMixinId = we.state._mixins.append() + '._code';
+                                        var createNewMixinId = function() {
+                                                // $fix what is this crazy + '._code' thing?!
+                                                return we.state._mixins.append() + '._code';
+                                        };
 
-				        if (mixinName)
-					        we.state.set('mixin-rep-key', JSON.stringify({key: newMixinId, mixinName: mixinName}));
-				        else {
-					        we.state.set('blip-rep-keys', newMixinId);
+                                        if (mixinName) {
+                                                var filtered = we.state._mixins.asArray().filter(function(x) {return x._name == mixinName;});                               
+
+                                                if (!filtered.isEmpty()) {
+                                                        // Mixin with requested name doesn't exist - add it
+                                                        we.fetchMixin(createNewMixinId(), mixinName);                      
+                                                }
+                                                else {
+                                                        // Mixin found - replace it with new version
+                                                        var mixin = filtered.oneElement();
+                                                        we.fetchMixin(mixin.$cursorPath + '_code', mixinName);
+                                                }             
+                                        } else {
+					        we.state.set('blip-rep-keys', createNewMixinId());
 				        }
 
 				        we.submitChanges();
