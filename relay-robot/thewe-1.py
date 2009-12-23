@@ -11,6 +11,7 @@ if __name__ == '__main__':
 
     # Doesn't really do anything - the proxying is done within class Robot
     thewe.register_handler(events.BlipSubmitted, Proxy)
+    thewe.register_handler(events.WaveletBlipRemoved, Proxy)
     thewe.register_handler(events.GadgetStateChanged, Proxy)
     thewe.register_handler(events.AnnotatedTextChanged, Proxy, filter='we/eval')
             
