@@ -539,12 +539,17 @@ will not be present in the new structure."
       (reset! *clipboard* {:rep-loc (:rep-loc *ctx*) :to-key to-key})
       (gadget-submit-delta-ops (:rep-loc *ctx*) {"to-key" "*" "url" ((:gadget-state *ctx*) "url")}))))
 
+(defn-ctrace replicate-to-from-key! [source-rep-loc to-key from-key]
+  (replicate-replocs! (assoc source-rep-loc :type "gadget" :key to-key)
+		      (assoc (:rep-loc *ctx*) :type "gadget" :key from-key)))
+
 (defn-ctrace handle-from-key []
   (if-let [from-key ((:gadget-state *ctx*) "from-key")]  
     (if (not= from-key "*")
       (when-let [{to-key :to-key source-rep-loc :rep-loc} @*clipboard*] ;hyper: to-key: f1._mixins [from-key: ggg._mixins key: ggg._mixins.2345345....]
-	(replicate-replocs! (assoc source-rep-loc :type "gadget" :key to-key)
-			      (assoc (:rep-loc *ctx*) :type "gadget" :key from-key))
+	(if (= to-key "_") 
+	  (doseq [single-from-key (.split from-key ",")]	  
+	       (replicate-to-from-key! source-rep-loc single-from-key single-from-key)))
 	(gadget-submit-delta-ops (:rep-loc *ctx*) {"from-key" "*" "url" ((:gadget-state *ctx*) "url")})))))
 
 
