@@ -196,6 +196,21 @@ we.State = new Class({
 	        return result;
 	},
 
+        adjustCursorPath: function(newCursorPath) {
+                var result = new we.State(newCursorPath);
+
+                this.getKeys().each(function(key) {
+                        var val = this[key];
+                        if ($type(val) == 'object') {
+                                result[key] = val.adjustCursorPath(newCursorPath + key + '.');
+                        }
+                        else {
+                                result[key] = val;
+                        }
+                });
+
+                return result;
+        },
 
 	////////////////////////////
 	// Elastic List Functions //
