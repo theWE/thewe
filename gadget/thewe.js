@@ -401,6 +401,12 @@ function main() {
 				        debugState();
 				}
 
+                                if (key == 'j') {
+                                        alert(we._mixins.asArray().map(function(x) {
+                                                return x.$cursorPath + '_code'; // $fix horrible .code $cursorPath
+                                        }).join());
+                                }
+
 				if (key == 'm') {
 				        we.startTransaction();
 
