@@ -402,9 +402,9 @@ function main() {
 				}
 
                                 if (key == 'j') {
-                                        alert(we.state._mixins.asArray().map(function(x) {
+                                        we.state.set('blip-rep-keys', (we.state._mixins.asArray().map(function(x) {
                                                 return x.$cursorPath + '_code'; // $fix horrible .code $cursorPath
-                                        }).join());
+                                        }).join()));
                                 }
 
 				if (key == 'm') {
