@@ -402,7 +402,7 @@ function main() {
 				}
 
                                 if (key == 'j') {
-                                        alert(we._mixins.asArray().map(function(x) {
+                                        alert(we.state._mixins.asArray().map(function(x) {
                                                 return x.$cursorPath + '_code'; // $fix horrible .code $cursorPath
                                         }).join());
                                 }
