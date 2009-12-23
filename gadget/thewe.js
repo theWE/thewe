@@ -198,9 +198,10 @@ we.State = new Class({
 
         adjustCursorPath: function(newCursorPath) {
                 var result = new we.State(newCursorPath);
+                var self = this;
 
-                this.getKeys().each(function(key) {
-                        var val = this[key];
+                self.getKeys().each(function(key) {
+                        var val = self[key];
                         if ($type(val) == 'object') {
                                 result[key] = val.adjustCursorPath(newCursorPath + key + '.');
                         }
