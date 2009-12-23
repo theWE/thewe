@@ -629,7 +629,7 @@ indeed ends with that substring"
 	(let [mixin-rep (read-json cmd) 
 	      mixin (@*mixin-db* (mixin-rep "mixinName"))
 	      target-rep-loc (assoc (:rep-loc *ctx*) :type "gadget" :key (mixin-rep "key"))] 	
-	  (replicate-replocs!
+	  #_(replicate-replocs!
 	   (:rep-loc mixin) 
 	   target-rep-loc)
 	  (concat
