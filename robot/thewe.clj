@@ -549,7 +549,8 @@ will not be present in the new structure."
       (when-let [{to-key :to-key source-rep-loc :rep-loc} @*clipboard*] ;hyper: to-key: f1._mixins [from-key: ggg._mixins key: ggg._mixins.2345345....]
 	(if (= to-key "_") 
 	  (doseq [single-from-key (.split from-key ",")]	  
-	       (replicate-to-from-key! source-rep-loc single-from-key single-from-key)))
+	       (replicate-to-from-key! source-rep-loc single-from-key single-from-key))
+          (replicate-to-from-key! source-rep-loc to-key from-key))
 	(gadget-submit-delta-ops (:rep-loc *ctx*) {"from-key" "*" "url" ((:gadget-state *ctx*) "url")})))))
 
 
