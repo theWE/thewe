@@ -470,19 +470,22 @@ function main() {
                                         var fromKeys = [];
                                         xkeys.split(',').each(function(xkey) {
                                                 var cursor = we.state._mixins;
+                                                var newCursor;
 
                                                 xkey.split('.').each(function(x) {
                                                         if (cursor[x]) {
-                                                                cursor = cursor[x];
+                                                                newCursor = cursor[x];
                                                         }
                                                         else {
                                                                 cursor.getKeys().each(function(candidate) {
                                                                         if (cursor[candidate]._name == x)
-                                                                                cursor = cursor[candidate];
+                                                                                newCursor = cursor[candidate];
                                                                         // $fix: make good each() on we.State
                                                                         
                                                                 });
                                                         }
+
+                                                        cursor = newCursor;
                                                 });
 
                                                 fromKeys.push(cursor.$cursorPath.allButLast());
@@ -493,7 +496,7 @@ function main() {
                                         alert('from-key: ' + fromKey);
                                         we.state.set('from-key', fromKey);
 
-//                                        list.komponents, list._prototype.field
+//                                        list.komponents,list._prototype.field
                                 }
                         }
                 });
