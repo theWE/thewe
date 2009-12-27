@@ -459,7 +459,7 @@ function main() {
 				        we.submitChanges();
 				}
                             
-                                if (key == '-') {
+                                if (key == 't') {
                                         we.state.set('to-key', '_');
                                         alert('Choose origin by going to the right view and pressing Ctrl-Alt-R');
                                 }
