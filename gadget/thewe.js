@@ -288,7 +288,8 @@ we.deepenState = function(state) {
                         cursor = cursor[token];
                 });
 
-                cursor[tokens.getLast()] = value;
+                var endVal = cursor[tokens.getLast()] = value;
+                endVal.$cursorPath = cursorPath + tokens.getLast() + '.'; // $fix horrible finally figure out this whole $cursorPath thing
         });
 
         return result;
