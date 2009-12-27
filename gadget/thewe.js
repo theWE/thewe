@@ -471,7 +471,7 @@ function main() {
                                         xkeys.split(',').each(function(xkey) {
                                                 var cursor = we.state._mixins;
                                                 var newCursor;
-                                                var cursorPath = '';
+                                                var cursorPath = '_mixins.';
                                                 var newCursorPath;
 
                                                 xkey.split('.').each(function(x) {
