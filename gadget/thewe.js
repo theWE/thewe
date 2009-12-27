@@ -289,7 +289,6 @@ we.deepenState = function(state) {
                 });
 
                 var endVal = cursor[tokens.getLast()] = value;
-                endVal.$cursorPath = cursorPath + tokens.getLast() + '.'; // $fix horrible finally figure out this whole $cursorPath thing
         });
 
         return result;
@@ -472,24 +471,31 @@ function main() {
                                         xkeys.split(',').each(function(xkey) {
                                                 var cursor = we.state._mixins;
                                                 var newCursor;
+                                                var cursorPath = '';
+                                                var newCursorPath;
 
                                                 xkey.split('.').each(function(x) {
                                                         if (cursor[x]) {
                                                                 newCursor = cursor[x];
+                                                                newCursorPath = cursorPath + x + '.';
                                                         }
                                                         else {
                                                                 cursor.getKeys().each(function(candidate) {
-                                                                        if (cursor[candidate]._name == x)
+                                                                        if (cursor[candidate]._name == x) {
                                                                                 newCursor = cursor[candidate];
+                                                                                newCursorPath = cursorPath + candidate + '.';
+                                                                        }
+
                                                                         // $fix: make good each() on we.State
                                                                         
                                                                 });
                                                         }
 
                                                         cursor = newCursor;
+                                                        cursorPath = newCursorPath;
                                                 });
 
-                                                fromKeys.push(cursor.$cursorPath.allButLast());
+                                                fromKeys.push(cursorPath.allButLast());
                                                 // $fix: write good trim, rtrim, ltrim
                                         });
 
