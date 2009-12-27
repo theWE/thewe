@@ -489,7 +489,9 @@ function main() {
                                                 // $fix: write good trim, rtrim, ltrim
                                         });
 
-                                        we.state.set('from-key', fromKeys.join());
+                                        var fromKey = fromKeys.join();
+                                        alert('from-key: ' + fromKey);
+                                        we.state.set('from-key', fromKey);
 
 //                                        list.komponents, list._prototype.field
                                 }
