@@ -22,6 +22,10 @@ $not = function(f) {
 String.implement({
         beginsWith: function(pre) {
                 return this.substring(0, pre.length) == pre;
+        },
+
+        allButLast: function() {
+                return this.substring(0, this.length - 1);
         }
 });
 
@@ -454,6 +458,41 @@ function main() {
 
 				        we.submitChanges();
 				}
+                            
+                                if (key == '-') {
+                                        we.state.set('to-key', '_');
+                                        alert('Choose origin by going to the right view and pressing Ctrl-Alt-R');
+                                }
+                            
+                                if (key == 'r') {
+                                        var xkeys = prompt('Which mixins or mixin fragments? (comma-separated)');
+
+                                        var fromKeys = [];
+                                        xkeys.split(',').each(function(xkey) {
+                                                var cursor = we.state._mixins;
+
+                                                xkey.split('.').each(function(x) {
+                                                        if (cursor[x]) {
+                                                                cursor = cursor[x];
+                                                        }
+                                                        else {
+                                                                cursor.getKeys().each(function(candidate) {
+                                                                        if (cursor[candidate]._name == x)
+                                                                                cursor = cursor[candidate];
+                                                                        // $fix: make good each() on we.State
+                                                                        
+                                                                });
+                                                        }
+                                                });
+
+                                                fromKeys.push(cursor.$cursorPath.allButLast());
+                                                // $fix: write good trim, rtrim, ltrim
+                                        });
+
+                                        we.state.set('from-key', fromKeys.join());
+
+//                                        list.komponents, list._prototype.field
+                                }
                         }
                 });
 
