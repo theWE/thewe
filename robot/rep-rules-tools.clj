@@ -31,8 +31,8 @@
 
 (comment
   (map count @*rep-rules*)
-  (remove-blip-id-from-rep-rules! "b+-O5RniaQA")
-  (rep-rules-with-rep-locs #(= (:blip-id %) "b+-DiUQjnYA"))
+  (remove-blip-id-from-rep-rules! "b+XIXAFGnqA" )
+\  (rep-rules-with-rep-locs #(= (:blip-id %) "b+XIXAFGnqA" ))
   
   (rep-rules-with-rep-locs #(= (:wave-id %) "googlewave.com!w+F3D8YKRbA"))
 

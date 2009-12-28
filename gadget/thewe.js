@@ -22,6 +22,10 @@ $not = function(f) {
 String.implement({
         beginsWith: function(pre) {
                 return this.substring(0, pre.length) == pre;
+        },
+
+        allButLast: function() {
+                return this.substring(0, this.length - 1);
         }
 });
 
@@ -284,7 +288,7 @@ we.deepenState = function(state) {
                         cursor = cursor[token];
                 });
 
-                cursor[tokens.getLast()] = value;
+                var endVal = cursor[tokens.getLast()] = value;
         });
 
         return result;
@@ -454,6 +458,53 @@ function main() {
 
 				        we.submitChanges();
 				}
+                            
+                                if (key == 't') {
+                                        we.state.set('to-key', '_');
+                                        alert('Choose origin by going to the right view and pressing Ctrl-Alt-R');
+                                }
+                            
+                                if (key == 'r') {
+                                        var xkeys = prompt('Which mixins or mixin fragments? (comma-separated)');
+
+                                        var fromKeys = [];
+                                        xkeys.split(',').each(function(xkey) {
+                                                var cursor = we.state._mixins;
+                                                var newCursor;
+                                                var cursorPath = '_mixins.';
+                                                var newCursorPath;
+
+                                                xkey.split('.').each(function(x) {
+                                                        if (cursor[x]) {
+                                                                newCursor = cursor[x];
+                                                                newCursorPath = cursorPath + x + '.';
+                                                        }
+                                                        else {
+                                                                cursor.getKeys().each(function(candidate) {
+                                                                        if (cursor[candidate]._name == x) {
+                                                                                newCursor = cursor[candidate];
+                                                                                newCursorPath = cursorPath + candidate + '.';
+                                                                        }
+
+                                                                        // $fix: make good each() on we.State
+                                                                        
+                                                                });
+                                                        }
+
+                                                        cursor = newCursor;
+                                                        cursorPath = newCursorPath;
+                                                });
+
+                                                fromKeys.push(cursorPath.allButLast());
+                                                // $fix: write good trim, rtrim, ltrim
+                                        });
+
+                                        var fromKey = fromKeys.join();
+                                        alert('from-key: ' + fromKey);
+                                        we.state.set('from-key', fromKey);
+
+//                                        list.komponents,list._prototype.field
+                                }
                         }
                 });
 

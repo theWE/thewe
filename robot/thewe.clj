@@ -548,7 +548,8 @@
       (when-let [{to-key :to-key source-rep-loc :rep-loc} @*clipboard*] ;hyper: to-key: f1._mixins [from-key: ggg._mixins key: ggg._mixins.2345345....]
 	(if (= to-key "_") 
 	  (doseq [single-from-key (.split from-key ",")]	  
-	       (replicate-to-from-key! source-rep-loc single-from-key single-from-key)))
+	       (replicate-to-from-key! source-rep-loc single-from-key single-from-key))
+          (replicate-to-from-key! source-rep-loc to-key from-key))
 	(gadget-submit-delta-ops (:rep-loc *ctx*) {"from-key" "*" "url" ((:gadget-state *ctx*) "url")})))))
 
 
@@ -614,15 +615,18 @@ indeed ends with that substring"
   (if-let [gadget-state (:gadget-state *ctx*)]
     (swap! 
      *mixin-db* 
-     into (for [[key val] gadget-state 
-		:when (and 
-		       (.startsWith key "_mixins.")
-		       (.endsWith key "._name"))
-		:let [code-key (replace-at-end key "_name" "_code")]]
-	    [val {:rep-loc (assoc (:rep-loc *ctx*) :type "gadget" :key code-key) 			      
-		  :name-key key 
-		  :code (gadget-state code-key) 
-		  :code-key code-key}]))))
+     #(into % (for [[key val] gadget-state 
+                    :when (and 
+                           (.startsWith key "_mixins.")
+                           (.endsWith key "._name"))
+                    :let [code-key (replace-at-end key "_name" "_code")
+                          rep-loc (assoc (:rep-loc *ctx*) :type "gadget" :key code-key)
+                          old-rep-loc (dig % val :rep-loc)]
+                    :when (or (nil? old-rep-loc) (= rep-loc old-rep-loc))]
+                [val {:rep-loc rep-loc
+                      :name-key key 
+                      :code (gadget-state code-key) 
+                      :code-key code-key}])))))
 
 (defn-ctrace handle-mixin-rep-key
   "This checks whether we got a key called 'mixin-rep-key' which will indicate we want to replicate to the current gadget a mixin we store in *mixin-db*"
