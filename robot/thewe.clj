@@ -365,7 +365,6 @@
                         (modify-how-json "INSERT_AFTER" nil 
                                          [(gadget-op-json rep-loc gadget-state)]))])
 
-; @TODO - should check if we should re-do the escaping workaround with the " "
 (defn-ctrace gadget-submit-delta-ops [rep-loc state]
   [(document-modify-json rep-loc nil 
                         (modify-query-json {"url" (state "url")} 1 "GADGET")
@@ -587,7 +586,7 @@
 					; change the rep-key value to * so we won't repeat this function over and over
 		  (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:gadget-state *ctx*) "url")}))))))))
 
-(defn-ctrace handle-gadget-rep "TODO" []
+(defn-ctrace handle-gadget-rep []
   (concat
    (handle-to-key)
    (handle-from-key)))
