@@ -75,8 +75,6 @@ Element.implement({
 });
 
 we.delta = {};
-we.view = {};
-
 
 we.submitChanges = function() {
         console.log('Delta submitted');
@@ -96,7 +94,6 @@ we.setMixinName = function(name) {
                 we.mixinState.set('_name', name);
 };
 
-
 var FuncArray = function() {
         var result = [];
 
@@ -109,7 +106,6 @@ var FuncArray = function() {
 
         return result;
 };
-
 
 we.State = new Class({
         initialize: function(cursorPath) {
@@ -128,18 +124,6 @@ we.State = new Class({
                         
 		        result[key] = val;
 		});
-
-	        return result;
-	},
-
-	// @todo: rename to getValue
-	get: function(key) {
-	        var result = this[key];
-
-	        if (result == null) {
-		        we.state.set('blip-rep-keys', this.$cursorPath + key, true);
-		        this.set(key, '');
-	        }
 
 	        return result;
 	},
@@ -381,10 +365,6 @@ function weStateUpdated() {
 		we.applyMixinsToElement(we.mixins, $('content'));
                 weModeChanged();
         }
-
-        if (typeof stateUpdated != 'undefined') {
-                stateUpdated(state);
-        }
 	
 	debugState();
         gadgets.window.adjustHeight();
@@ -509,8 +489,6 @@ function main() {
                                         var fromKey = fromKeys.join();
                                         alert('from-key: ' + fromKey);
                                         we.state.set('from-key', fromKey);
-
-//                                        list.komponents,list._prototype.field
                                 }
                         }
                 });

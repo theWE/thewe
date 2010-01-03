@@ -80,7 +80,8 @@
 	      *clipboard* nil
 	      *last-clipboard* nil
 	      *other-wave* nil
-	      *mixin-db* {})
+	      *mixin-db* {}
+	      *gadget-db* {})
   (when-not save-periodically
     (periodicly save-atoms 25000)
     (def save-periodically true)))
@@ -256,11 +257,10 @@
 
 (defn-ctrace blip-data-to-rep-ops [blip-data]
   (let [basic-rep-loc {:wave-id (blip-data "waveId"), :wavelet-id (blip-data "waveletId"), :blip-id (blip-data "blipId")}]
-    (if-let [gadget-map (first (dig blip-data "elements"))]
+    (if-let [gadget-state (:gadget-state *ctx*)]
 					; there is a gadget here
-      (let [gadget-state (dig (val gadget-map) "properties")]
-        (for [[k v] gadget-state]
-          {:rep-loc (assoc basic-rep-loc :type "gadget" :key k) :content v}))
+      (for [[k v] gadget-state]
+	{:rep-loc (assoc basic-rep-loc :type "gadget" :key k) :content v})
 
 					; there is no gadget
 
@@ -423,6 +423,24 @@
 
 ;;; Helper "API"
 
+
+(defn-ctrace diff-maps [m1 m2]
+  (if m1
+    (merge
+     (into {} (for [[k2 v2] m2 :when (not (m1 k2))] [k2 v2]))
+     (into {} 
+	   (for [[k1 v1] m1 
+		 :let [v2 (m2 k1)] 
+		 :when (not= v1 v2)] [k1 v2])))
+    m2))
+
+(defn-ctrace handle-full-gadget-state! [rep-loc new-gadget-state]
+  (if new-gadget-state
+    (let [delta 
+	  (diff-maps (@*gadget-db* rep-loc) new-gadget-state)] 
+      (swap! *gadget-db* assoc rep-loc new-gadget-state)
+      delta)))
+
 (defmacro iterate-events [events listen-to for-args]
   `(let [~'modified-blip-ids
 	 (for [~'event (dig ~events "events")
@@ -433,10 +451,17 @@
 	   :let [~'blip-data (dig ~events "blips" ~'blip-id)
 		 ~'content (~'blip-data "content")		 
 		 ~'blip-annotations (dig ~'blip-data "annotations")		 
-		 ~'rep-loc {:type "blip"  :wave-id (~'blip-data "waveId") :wavelet-id (~'blip-data "waveletId") :blip-id (~'blip-data "blipId")}
+		 ~'rep-loc {:type "blip"  
+			    :wave-id (~'blip-data "waveId") 
+			    :wavelet-id (~'blip-data "waveletId") 
+			    :blip-id (~'blip-data "blipId")}
 		 ~'first-gadget-map (first (dig ~'blip-data "elements"))
 		 ~'gadget-state (if ~'first-gadget-map (dig (val ~'first-gadget-map) "properties") {})]] 
-       (binding [~'*ctx* (ctrace {:rep-loc ~'rep-loc :content ~'content :annotations ~'blip-annotations :gadget-state ~'gadget-state})] ~for-args))))
+       (binding [~'*ctx* (ctrace {:rep-loc ~'rep-loc 
+				  :content ~'content 
+				  :annotations ~'blip-annotations 
+				  :gadget-state (handle-full-gadget-state! ~'rep-loc ~'gadget-state)})]
+	 ~for-args))))
 
 
 
@@ -597,6 +622,8 @@
     (filter-rep-locs-in-rep-rules! 
      #(transformation-function-if-match-rep-loc % (:rep-loc *ctx*)))
     []))
+
+
 
 (defn replace-at-end
   "Replaces a substring from the end of a string with a different substring. Assumes that the string
