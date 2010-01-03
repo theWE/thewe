@@ -344,7 +344,10 @@ we.applyMixinsToElement = function(mixins, el) {
 		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
 		        }
 
-		        eval(we.mixinState._code);
+                        if (!we.mixinCtx._codeFunc)
+		                eval('we.mixinCtx._codeFunc = function() {' + we.mixinState._code + '};');
+
+                        we.mixinCtx._codeFunc();
 	        }
 	});
 };
@@ -383,7 +386,7 @@ function weStateUpdated() {
 	
 	debugState();
         gadgets.window.adjustHeight();
-        console.log("Render time: " + ($time() - startTime));
+        console.log('Render time: ' + ($time() - startTime) + 'ms');
 }
 
 we.fetchMixin = function(mixinId, mixinName) {
