@@ -315,6 +315,8 @@ we.$ = function(id) {
         return we.el.getElementById(id);
 };
 
+we.mixinFuncs = {};
+
 we.applyMixinsToElement = function(mixins, el) {
         var baseMixinCtxByName = {};
 
@@ -328,7 +330,10 @@ we.applyMixinsToElement = function(mixins, el) {
 		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
 		        }
 
-		        eval(we.mixinState._code);
+                        if (!we.mixinFuncs[we.mixinState._name])
+		                eval('we.mixinFuncs[we.mixinState._name] = function() {' + we.mixinState._code + '};');
+
+                        we.mixinFuncs[we.mixinState._name]();
 	        }
 	});
 };
@@ -348,6 +353,8 @@ function debugState() {
 }
 
 function weStateUpdated() {
+        var startTime = $time();
+
         state = we.computeState();
 
 	/* $fix - see what actually changed */
@@ -360,8 +367,8 @@ function weStateUpdated() {
         }
 	
 	debugState();
-
         gadgets.window.adjustHeight();
+        console.log('Render time: ' + ($time() - startTime) + 'ms');
 }
 
 we.fetchMixin = function(mixinId, mixinName) {
