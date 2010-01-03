@@ -119,26 +119,25 @@
 
 (def log-list (atom []))
 
-; From clojure.contrib.core. Not sure why I can't just use it.
-(defn dissoc-in
-  "Dissociates an entry from a nested associative structure returning a new
-nested structure. keys is a sequence of keys. Any empty maps that result
-will not be present in the new structure."
-  [m [k & ks :as keys]]
-  (if ks
-    (if-let [nextmap (get m k)]
-      (let [newmap (dissoc-in nextmap ks)]
-        (if (seq newmap)
-	    (assoc m k newmap)
-	    (dissoc m k)))
-      m)
-    (dissoc m k)))
-
 (defn assoc-in-x 
   ([map] map) 
   ([map path val & rest]
      (apply assoc-in-x `[~(assoc-in map path val) ~@rest])))
 
+
+(defn bound-seq*
+  [bind-map inner-seq]
+  (lazy-seq
+    (with-bindings bind-map
+      (when-let [s (seq inner-seq)]
+        (cons (first s) (bound-seq* bind-map (rest s)))))))
+
+(defmacro bound-seq
+  ([inner-seq]
+   `(bound-seq* (get-thread-bindings) ~inner-seq))
+  ([bind-map inner-seq]
+   `(bound-seq* (hash-map ~@(mapcat (fn [[k v]] [`(var ~k) v]) bind-map))
+                ~inner-seq)))
 
 ; =========================================
 ; ======= Logical Replication Layer =======
@@ -366,7 +365,6 @@ will not be present in the new structure."
                         (modify-how-json "INSERT_AFTER" nil 
                                          [(gadget-op-json rep-loc gadget-state)]))])
 
-; @TODO - should check if we should re-do the escaping workaround with the " "
 (defn-ctrace gadget-submit-delta-ops [rep-loc state]
   [(document-modify-json rep-loc nil 
                         (modify-query-json {"url" (state "url")} 1 "GADGET")
@@ -588,7 +586,7 @@ will not be present in the new structure."
 					; change the rep-key value to * so we won't repeat this function over and over
 		  (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:gadget-state *ctx*) "url")}))))))))
 
-(defn-ctrace handle-gadget-rep "TODO" []
+(defn-ctrace handle-gadget-rep []
   (concat
    (handle-to-key)
    (handle-from-key)))
