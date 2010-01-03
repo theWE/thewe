@@ -364,6 +364,8 @@ function debugState() {
 }
 
 function weStateUpdated() {
+        var startTime = $time();
+
         state = we.computeState();
 
 	/* $fix - see what actually changed */
@@ -380,8 +382,8 @@ function weStateUpdated() {
         }
 	
 	debugState();
-
         gadgets.window.adjustHeight();
+        console.log("Render time: " + ($time() - startTime));
 }
 
 we.fetchMixin = function(mixinId, mixinName) {
