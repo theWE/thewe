@@ -331,6 +331,8 @@ we.$ = function(id) {
         return we.el.getElementById(id);
 };
 
+we.mixinFuncs = {};
+
 we.applyMixinsToElement = function(mixins, el) {
         var baseMixinCtxByName = {};
 
@@ -344,10 +346,10 @@ we.applyMixinsToElement = function(mixins, el) {
 		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
 		        }
 
-                        if (!we.mixinCtx._codeFunc)
-		                eval('we.mixinCtx._codeFunc = function() {' + we.mixinState._code + '};');
+                        if (!we.mixinFuncs[we.mixinState._name])
+		                eval('we.mixinFuncs[we.mixinState._name] = function() {' + we.mixinState._code + '};');
 
-                        we.mixinCtx._codeFunc();
+                        we.mixinFuncs[we.mixinState._name]();
 	        }
 	});
 };
