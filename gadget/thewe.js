@@ -329,11 +329,14 @@ we.applyMixinsToElement = function(mixins, el) {
 		        if (we.mixinState._name) {
 		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
 		        }
-
+/*
                         if (!we.mixinFuncs[we.mixinState._name])
 		                eval('we.mixinFuncs[we.mixinState._name] = function() {' + we.mixinState._code + '};');
 
                         we.mixinFuncs[we.mixinState._name]();
+*/
+
+                        eval(we.mixinState._code);
 	        }
 	});
 };
