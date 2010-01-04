@@ -450,6 +450,15 @@ function main() {
                                         we.state.set('to-key', '_');
                                         alert('Choose origin by going to the right view and pressing Ctrl-Alt-R');
                                 }
+
+                                if (key == 'u') {
+                                        var theweJsPath = prompt('URL to thewe.js to use, or none for default');
+
+                                        if (theweJsPath)
+                                                Cookie.write('thewe-js-path', theweJsPath);
+                                        else
+                                                Cookie.dispose('thewe-js-path');
+                                }
                             
                                 if (key == 'r') {
                                         var xkeys = prompt('Which mixins or mixin fragments? (comma-separated)');

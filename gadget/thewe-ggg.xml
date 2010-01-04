@@ -20,8 +20,10 @@
 			<script type="text/javascript" src="http://wave.thewe.net/gadgets/thewe-ggg/beautify.js"></script>
 
                         <script type="text/javascript">
-                          if (Cookie.read('work'))
-                            Asset.javascript('http://work.thewe.net/thewe/thewe.js');
+                          var theweJsPath = Cookie.read('thewe-js-path');
+                          
+                          if (theweJsPath)
+                            Asset.javascript(theweJsPath);
                           else
                             Asset.javascript('http://wave.thewe.net/gadgets/thewe-ggg/thewe.js');
                         </script>
