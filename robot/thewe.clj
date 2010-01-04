@@ -255,9 +255,9 @@
 
 
 
-(defn-ctrace blip-data-to-rep-ops [blip-data]
+(defn-ctrace blip-data-to-rep-ops [blip-data gadget-state]
   (let [basic-rep-loc {:wave-id (blip-data "waveId"), :wavelet-id (blip-data "waveletId"), :blip-id (blip-data "blipId")}]
-    (if-let [gadget-state (:gadget-state *ctx*)]
+    (if gadget-state 
 					; there is a gadget here
       (for [[k v] gadget-state]
 	{:rep-loc (assoc basic-rep-loc :type "gadget" :key k) :content v})
@@ -460,7 +460,8 @@
        (binding [~'*ctx* (ctrace {:rep-loc ~'rep-loc 
 				  :content ~'content 
 				  :annotations ~'blip-annotations 
-				  :gadget-state (handle-full-gadget-state! ~'rep-loc ~'gadget-state)})]
+				  :gadget-state (handle-full-gadget-state! ~'rep-loc ~'gadget-state)
+				  :full-gadget-state ~'gadget-state})]
 	 ~for-args))))
 
 
@@ -706,12 +707,16 @@ indeed ends with that substring"
    (apply concat 
 	  (iterate-events events-map "BLIP_SUBMITTED" 
 			  (do (store-mixins)
-			      (concat 
-			       (handle-gadget-rep) 
-			       (handle-rep-keys) 
-			       (do-replication @*rep-rules* 
-					       (blip-data-to-rep-ops blip-data))
-			       (handle-mixin-rep-key)))))
+			      (let [gadget-rep-ops 
+				    (handle-gadget-rep)
+				    gadget-state 
+				    (if (empty? gadget-rep-ops) (:gadget-state *ctx*) (:full-gadget-state *ctx*))]
+				(concat 
+				 gadget-rep-ops 
+				 (handle-rep-keys) 
+				 (do-replication @*rep-rules* 
+						 (blip-data-to-rep-ops blip-data))
+				 (handle-mixin-rep-key))))))
    (run-function-do-operations events-map)
    #_(apply concat (iterate-events events-map "WAVELET_BLIP_REMOVED" (handle-removed-blips)))))
 
