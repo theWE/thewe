@@ -329,11 +329,14 @@ we.applyMixinsToElement = function(mixins, el) {
 		        if (we.mixinState._name) {
 		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
 		        }
-
+/*
                         if (!we.mixinFuncs[we.mixinState._name])
 		                eval('we.mixinFuncs[we.mixinState._name] = function() {' + we.mixinState._code + '};');
 
                         we.mixinFuncs[we.mixinState._name]();
+*/
+
+                        eval(we.mixinState._code);
 	        }
 	});
 };
@@ -449,6 +452,15 @@ function main() {
                                 if (key == 't') {
                                         we.state.set('to-key', '_');
                                         alert('Choose origin by going to the right view and pressing Ctrl-Alt-R');
+                                }
+
+                                if (key == 'u') {
+                                        var theweJsPath = prompt('URL to thewe.js to use, or none for default');
+
+                                        if (theweJsPath)
+                                                Cookie.write('thewe-js-path', theweJsPath);
+                                        else
+                                                Cookie.dispose('thewe-js-path');
                                 }
                             
                                 if (key == 'r') {
