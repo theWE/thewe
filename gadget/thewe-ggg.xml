@@ -17,19 +17,13 @@
 			<script type="text/javascript" src="http://wave-api.appspot.com/public/wave.js"></script>
 			<script type="text/javascript" src="http://wave.thewe.net/gadgets/thewe-ggg/mootools-1.2.4-core-nc.js"></script>
 			<script type="text/javascript" src="http://wave.thewe.net/gadgets/thewe-ggg/mootools-1.2.4.2-more.js"></script>
-			<script type="text/javascript" src="http://wave.thewe.net/gadgets/thewe-ggg/beautify.js" ></script>
+			<script type="text/javascript" src="http://wave.thewe.net/gadgets/thewe-ggg/beautify.js"></script>
 
                         <script type="text/javascript">
-                          window.addEvent('domready', function() {
-                            var keydown = false;
-                            window.addEvent('keydown', function() { keydown = true });
-                            (function() { 
-                              if (keydown)
-                                Asset.javascript('http://work.thewe.net/thewe/thewe.js');
-                              else
-                                Asset.javascript('http://wave.thewe.net/gadgets/thewe-ggg/thewe.js');
-                            }).delay(100);
-                          });
+                          if (Cookie.read('work'))
+                            Asset.javascript('http://work.thewe.net/thewe/thewe.js');
+                          else
+                            Asset.javascript('http://wave.thewe.net/gadgets/thewe-ggg/thewe.js');
                         </script>
                         
 			<style type="text/css">
