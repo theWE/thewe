@@ -320,25 +320,37 @@ we.mixinFuncs = {};
 we.applyMixinsToElement = function(mixins, el) {
         var baseMixinCtxByName = {};
 
+        // $fix - can this be done better? like clojure's binding?
+
+        // $fix - should we be split into we and weCtx or something? where weCtx is always rebound and
+        //        we stays the same like with mixinFuncs
+        var oldMixinCtx = we.mixinCtx;
+        var oldMixinState = we.mixinState;
+        var oldEl = we.el;
+        var oldBaseMixinCtxByName = we.baseMixinCtxByName;
+
         mixins.each(function(mixinState) {
 	        if (mixinState._code) {
 		        we.mixinCtx = mixinState._context = {state: mixinState, el: el};
 		        we.mixinState = mixinState;
-		        we.el = el;	       
-
+		        we.el = el;
+                        we.baseMixinCtxByName = baseMixinCtxByName;
+                     
 		        if (we.mixinState._name) {
 		                baseMixinCtxByName[we.mixinState._name] = we.mixinCtx;
-		        }
-/*
-                        if (!we.mixinFuncs[we.mixinState._name])
-		                eval('we.mixinFuncs[we.mixinState._name] = function() {' + we.mixinState._code + '};');
+                        }
 
-                        we.mixinFuncs[we.mixinState._name]();
-*/
+                        if (!we.mixinFuncs[we.mixinState._code])
+		                eval('we.mixinFuncs[we.mixinState._code] = function() {' + we.mixinState._code + '};');
 
-                        eval(we.mixinState._code);
+                        we.mixinFuncs[we.mixinState._code]();                            
 	        }
 	});
+
+        we.mixinCtx = oldMixinCtx;
+        we.mixinState = oldMixinState;
+        we.oldEl = we.el;
+        we.oldBaseMixinCtxByName = we.baseMixinCtxByName;
 };
 
 msg = null;
