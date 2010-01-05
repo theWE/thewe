@@ -349,8 +349,8 @@ we.applyMixinsToElement = function(mixins, el) {
 
         we.mixinCtx = oldMixinCtx;
         we.mixinState = oldMixinState;
-        we.oldEl = we.el;
-        we.oldBaseMixinCtxByName = we.baseMixinCtxByName;
+        we.el = oldEl;
+        we.baseMixinCtxByName = oldBaseMixinCtxByName;
 };
 
 msg = null;
@@ -375,10 +375,14 @@ function weStateUpdated() {
 	/* $fix - see what actually changed */
         if (we.mixins != state._mixins) {
                 we.mixins = state._mixins;
-		$('content').empty();
 		modeChanged.empty();
-		we.applyMixinsToElement(we.mixins, $('content'));
+
+                // $fix: should this be more generic, by having applyMixinsToElement return the new element instead?
+                var newContent = new Element('span', {id: 'content'}); 
+		we.applyMixinsToElement(we.mixins, newContent);
+
                 weModeChanged();
+                newContent.replaces('content');
         }
 	
 	debugState();
