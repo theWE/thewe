@@ -593,7 +593,7 @@
 		       child-rep-loc (assoc rep-loc :blip-id "new-blip")
 		       annotate-str (str "\nThis blip will be replicated to the gadget key " rep-key 
 					 ". Anything within this highlighted segment will be ignored during replication.")
-		       key-val (dig *ctx* :gadget-state rep-key)]
+		       key-val (dig *ctx* :full-gadget-state rep-key)]
 		 
 		   (replicate-replocs! (dissoc (assoc rep-loc :type "blip" :annotation-name "we/rep" :annotation-value rep-key) :blip-id) ;
 				       (assoc rep-loc :type "gadget" :key rep-key))
@@ -615,7 +615,8 @@
 		      (document-insert-ops child-rep-loc
 					   (inc (count annotate-str)) key-val))
 					; change the rep-key value to * so we won't repeat this function over and over
-		    (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:gadget-state *ctx*) "url")})))))))))
+
+		    (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:full-gadget-state *ctx*) "url")})))))))))
 
 (defn-ctrace handle-gadget-rep []
   (concat
@@ -706,6 +707,8 @@ indeed ends with that substring"
 (defn concat-apply [fns arg]
   (apply concat 
          (map #(% arg) fns)))
+
+; @todo rename *ctx* :gadget-state to *ctx* :gadget-state-delta and full-gadget-state -> gadget-state
 
 (defn-ctrace mother-shit [events-map]
   (concat 
