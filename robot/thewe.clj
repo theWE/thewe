@@ -426,12 +426,14 @@
 
 (defn-ctrace diff-maps [m1 m2]
   (if m1
-    (merge
-     (into {} (for [[k2 v2] m2 :when (not (m1 k2))] [k2 v2]))
-     (into {} 
-	   (for [[k1 v1] m1 
-		 :let [v2 (m2 k1)] 
-		 :when (not= v1 v2)] [k1 v2])))
+    (if m2 
+      (merge
+       (into {} (for [[k2 v2] m2 :when (not (m1 k2))] [k2 v2]))
+       (into {} 
+	     (for [[k1 v1] m1 
+		   :let [v2 (m2 k1)] 
+		   :when (not= v1 v2)] [k1 v2])))
+      nil)
     m2))
 
 (defn-ctrace handle-full-gadget-state! [rep-loc new-gadget-state]
@@ -456,7 +458,7 @@
 			    :wavelet-id (~'blip-data "waveletId") 
 			    :blip-id (~'blip-data "blipId")}
 		 ~'first-gadget-map (first (dig ~'blip-data "elements"))
-		 ~'gadget-state (if ~'first-gadget-map (dig (val ~'first-gadget-map) "properties") {})]] 
+		 ~'gadget-state (if ~'first-gadget-map (dig (val ~'first-gadget-map) "properties") nil)]] 
        (binding [~'*ctx* (ctrace {:rep-loc ~'rep-loc 
 				  :content ~'content 
 				  :annotations ~'blip-annotations 
@@ -558,59 +560,62 @@
 ;;; Utilities for gadget-initiated replication
 
 (defn-ctrace handle-to-key []
-  (if-let [to-key ((:gadget-state *ctx*) "to-key")]
-   (when (not= to-key "*")
-      (reset! *clipboard* {:rep-loc (:rep-loc *ctx*) :to-key to-key})
-      (gadget-submit-delta-ops (:rep-loc *ctx*) {"to-key" "*" "url" ((:gadget-state *ctx*) "url")}))))
+  (if-let [gadget-state (:gadget-state *ctx*)]
+    (if-let [to-key (gadget-state "to-key")]
+      (when (not= to-key "*")
+	(reset! *clipboard* {:rep-loc (:rep-loc *ctx*) :to-key to-key})
+	(gadget-submit-delta-ops (:rep-loc *ctx*) {"to-key" "*" "url" (gadget-state "url")})))))
 
 (defn-ctrace replicate-to-from-key! [source-rep-loc to-key from-key]
   (replicate-replocs! (assoc source-rep-loc :type "gadget" :key to-key)
 		      (assoc (:rep-loc *ctx*) :type "gadget" :key from-key)))
 
 (defn-ctrace handle-from-key []
-  (if-let [from-key ((:gadget-state *ctx*) "from-key")]  
-    (if (not= from-key "*")
-      (when-let [{to-key :to-key source-rep-loc :rep-loc} @*clipboard*] ;hyper: to-key: f1._mixins [from-key: ggg._mixins key: ggg._mixins.2345345....]
-	(if (= to-key "_") 
-	  (doseq [single-from-key (.split from-key ",")]	  
-	       (replicate-to-from-key! source-rep-loc single-from-key single-from-key))
-          (replicate-to-from-key! source-rep-loc to-key from-key))
-	(gadget-submit-delta-ops (:rep-loc *ctx*) {"from-key" "*" "url" ((:gadget-state *ctx*) "url")})))))
+  (if-let [gadget-state (:gadget-state *ctx*)]
+    (if-let [from-key (gadget-state "from-key")]  
+      (if (not= from-key "*")
+	(when-let [{to-key :to-key source-rep-loc :rep-loc} @*clipboard*] ;hyper: to-key: f1._mixins [from-key: ggg._mixins key: ggg._mixins.2345345....]
+	  (if (= to-key "_") 
+	    (doseq [single-from-key (.split from-key ",")]	  
+	      (replicate-to-from-key! source-rep-loc single-from-key single-from-key))
+	    (replicate-to-from-key! source-rep-loc to-key from-key))
+	  (gadget-submit-delta-ops (:rep-loc *ctx*) {"from-key" "*" "url" (gadget-state "url")}))))))
 
 
 
 (defn-ctrace handle-rep-keys []
-  (if-let [rep-keys ((:gadget-state *ctx*) "blip-rep-keys")]
-    (if (not= rep-keys "*")
-      (apply concat 
-	     (for [rep-key (.split rep-keys ",")]
-	       (let [rep-loc (:rep-loc *ctx*) 
-		     child-rep-loc (assoc rep-loc :blip-id "new-blip")
-		     annotate-str (str "\nThis blip will be replicated to the gadget key " rep-key 
-				       ". Anything within this highlighted segment will be ignored during replication.")
-		     key-val (dig *ctx* :gadget-state rep-key)]
+  (if-let [gadget-state (:gadget-state *ctx*)]
+    (if-let [rep-keys (gadget-state "blip-rep-keys")]
+      (if (not= rep-keys "*")
+	(apply concat 
+	       (for [rep-key (.split rep-keys ",")]
+		 (let [rep-loc (:rep-loc *ctx*) 
+		       child-rep-loc (assoc rep-loc :blip-id "new-blip")
+		       annotate-str (str "\nThis blip will be replicated to the gadget key " rep-key 
+					 ". Anything within this highlighted segment will be ignored during replication.")
+		       key-val (dig *ctx* :gadget-state rep-key)]
 		 
-		 (replicate-replocs! (dissoc (assoc rep-loc :type "blip" :annotation-name "we/rep" :annotation-value rep-key) :blip-id) ;
-				     (assoc rep-loc :type "gadget" :key rep-key))
-		 (concat
+		   (replicate-replocs! (dissoc (assoc rep-loc :type "blip" :annotation-name "we/rep" :annotation-value rep-key) :blip-id) ;
+				       (assoc rep-loc :type "gadget" :key rep-key))
+		   (concat
 		  
-		  (blip-create-child-ops rep-loc "" "new-blip")
+		    (blip-create-child-ops rep-loc "" "new-blip")
 					; set an annotation on the whole blip that holds as a value the key we want to replicate to
-		  (add-annotation-norange-ops  child-rep-loc "we/rep" rep-key)
+		    (add-annotation-norange-ops  child-rep-loc "we/rep" rep-key)
 					; insert an annotation that should NOT be replicated to let the user know this blip is replicated to a specific gadget key
-		  (add-string-and-annotate-ops 
-		   child-rep-loc
-		   (str annotate-str "\n")
-		   (count annotate-str)
-		   "we/DNR")
+		    (add-string-and-annotate-ops 
+		     child-rep-loc
+		     (str annotate-str "\n")
+		     (count annotate-str)
+		     "we/DNR")
      					; mark previous annotation with another one to make sure the user notices it (a color annotation)
-		  (add-annotation-ops child-rep-loc "style/backgroundColor" (range-json 0 (count annotate-str)) "rgb(255, 153, 0)")
+		    (add-annotation-ops child-rep-loc "style/backgroundColor" (range-json 0 (count annotate-str)) "rgb(255, 153, 0)")
 					; insert current value to blip (if exists)
-		  (if key-val
-		    (document-insert-ops child-rep-loc
-					 (inc (count annotate-str)) key-val))
+		    (if key-val
+		      (document-insert-ops child-rep-loc
+					   (inc (count annotate-str)) key-val))
 					; change the rep-key value to * so we won't repeat this function over and over
-		  (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:gadget-state *ctx*) "url")}))))))))
+		    (gadget-submit-delta-ops rep-loc {"blip-rep-keys" "*" "url" ((:gadget-state *ctx*) "url")})))))))))
 
 (defn-ctrace handle-gadget-rep []
   (concat
@@ -639,7 +644,7 @@ indeed ends with that substring"
 (defn-ctrace store-mixins 
   "This stores gadget keys called mixins as they contain code we might want to use by name later"
   []
-  (if-let [gadget-state (:gadget-state *ctx*)]
+  (if-let [gadget-state (:full-gadget-state *ctx*)]
     (swap! 
      *mixin-db* 
      #(into % (for [[key val] gadget-state 
@@ -715,7 +720,7 @@ indeed ends with that substring"
 				 gadget-rep-ops 
 				 (handle-rep-keys) 
 				 (do-replication @*rep-rules* 
-						 (blip-data-to-rep-ops blip-data))
+						 (blip-data-to-rep-ops blip-data gadget-state))
 				 (handle-mixin-rep-key))))))
    (run-function-do-operations events-map)
    #_(apply concat (iterate-events events-map "WAVELET_BLIP_REMOVED" (handle-removed-blips)))))
