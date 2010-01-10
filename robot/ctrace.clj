@@ -54,7 +54,11 @@
 (defn end-complete-tracing-and-print-org-mode [] 
   (def *enable-ctrace* false)
   (doseq [[depth ppr? val] @*ctrace-log*] 
-    (print (str (if depth (str (.substring *stars* 0 depth) " ") "") (if ppr? (ppr-str val) (str val \newline))))))
+    (print (str 
+            (if depth (str (.substring *stars* 0 depth) " ") "") 
+            (try (if ppr? (ppr-str val) (str val \newline))
+                 (catch Throwable t (str t)))))))
+
      
 (comment
 (defn monad-log-form [comp]

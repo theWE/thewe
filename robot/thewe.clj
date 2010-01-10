@@ -150,8 +150,8 @@
 ; rep-loc:    Either {:type "blip" :wave-id wave-id :wavelet-id wavelet-id :blip-id blip-id} or
 ;                    {:type "gadget" :wave-id wave-id :wavelet-id wavelet-id :blip-id blip-id :key key} or
 ;
-; rep-op:     {:rep-loc rep-loc :content content :action action :loc-type: gadget} or
-;             {:rep-loc rep-loc :content content :action action :loc-type: blip}
+; rep-op:     {:rep-loc rep-loc :content content :action action :loc-type gadget} or
+;             {:rep-loc rep-loc :content content :action action :loc-type blip}
 ;
 ; rep-rules:  A set of sets (a partition) of rep-locs
 
@@ -452,18 +452,18 @@
      (for [~'blip-id ~'modified-blip-ids
 	   :let [~'blip-data (dig ~events "blips" ~'blip-id)
 		 ~'content (~'blip-data "content")		 
-		 ~'blip-annotations (dig ~'blip-data "annotations")		 
+		 ~'blip-annotations (dig ~'blip-data "annotations") 
 		 ~'rep-loc {:type "blip"  
 			    :wave-id (~'blip-data "waveId") 
 			    :wavelet-id (~'blip-data "waveletId") 
 			    :blip-id (~'blip-data "blipId")}
-		 ~'first-gadget-map (first (dig ~'blip-data "elements"))
+		 ~'first-gadget-map (first (filter (fn [el#] (= (el# "type") "GADGET")) (dig ~'blip-data "elements")))
 		 ~'gadget-state (if ~'first-gadget-map (dig (val ~'first-gadget-map) "properties") nil)]] 
-       (binding [~'*ctx* (ctrace {:rep-loc ~'rep-loc 
-				  :content ~'content 
-				  :annotations ~'blip-annotations 
-				  :gadget-state (handle-full-gadget-state! ~'rep-loc ~'gadget-state)
-				  :full-gadget-state ~'gadget-state})]
+       (binding [~'*ctx* (ctrace (identity {:rep-loc ~'rep-loc 
+                                            :content ~'content 
+                                            :annotations ~'blip-annotations 
+                                            :gadget-state (handle-full-gadget-state! ~'rep-loc ~'gadget-state)
+                                            :full-gadget-state ~'gadget-state}))]
 	 ~for-args))))
 
 
